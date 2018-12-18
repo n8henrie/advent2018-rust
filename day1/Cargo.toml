@@ -1,0 +1,6 @@
+[package]
+name = "advent-rust"
+version = "0.1.0"
+authors = ["Nathan Henrie <nate@n8henrie.com>"]
+
+[dependencies]
