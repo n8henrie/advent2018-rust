@@ -16,7 +16,7 @@ struct Grid {
 }
 
 impl Grid {
-    fn new(points: &Vec<Point>) -> Self {
+    fn new(points: &[Point]) -> Self {
         let min_x = points.iter().min_by_key(|p| p.x).unwrap().x;
         let max_x = points.iter().max_by_key(|p| p.x).unwrap().x;
         let min_y = points.iter().min_by_key(|p| p.y).unwrap().y;
@@ -61,7 +61,7 @@ named!(parse_input<&[u8], Vec<Point>>,
     many1!(complete!(parse_line))
 );
 
-fn part1(points: &Vec<Point>) -> u32 {
+fn part1(points: &[Point]) -> u32 {
     let mut grid = Grid::new(points);
 
     // For each point in the grid, find the nearest point
@@ -82,8 +82,7 @@ fn part1(points: &Vec<Point>) -> u32 {
             if distances
                 .iter()
                 .filter(|(_i, d)| *d == min_distance.1)
-                .collect::<Vec<_>>()
-                .len()
+                .count()
                 > 1
             {
                 // grid with multiple nearest points
@@ -122,8 +121,7 @@ fn part1(points: &Vec<Point>) -> u32 {
                             false
                         }
                     })
-                    .collect::<Vec<_>>()
-                    .len(),
+                    .count(),
             )
         })
         .collect::<Vec<_>>();
@@ -146,8 +144,7 @@ fn part2(points: &Vec<Point>) -> u32 {
                 .sum::<i32>()
                 < 10000
         })
-        .collect::<Vec<_>>()
-        .len() as u32
+        .count() as u32
 }
 
 fn main() {
