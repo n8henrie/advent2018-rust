@@ -1,0 +1,8 @@
+[package]
+name = "day8"
+version = "0.1.0"
+authors = ["Nathan Henrie <nate@n8henrie.com>"]
+edition = "2018"
+
+[dependencies]
+nom = "^4.2"
