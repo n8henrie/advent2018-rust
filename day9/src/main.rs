@@ -1,11 +1,7 @@
-// Then, each Elf takes a turn placing the lowest-numbered remaining marble into the circle between the marbles that are 1 and 2 marbles clockwise of the current marble. (When the circle is large enough, this means that there is one marble between the marble that was just placed and the current marble.) The marble that was just placed then becomes the current marble.
-//
-// However, if the marble that is about to be placed has a number which is a multiple of 23, something entirely different happens. First, the current player keeps the marble they would have placed, adding it to their score. In addition, the marble 7 marbles counter-clockwise from the current marble is removed from the circle and also added to the current player's score. The marble located immediately clockwise of the marble that was removed becomes the new current marble.
-// What is the winning Elf's score?
+// Part 1: 429943
+// Part 2: 3615691746
 
-// Amused by the speed of your answer, the Elves are curious:
-//
-// What would the new winning Elf's score be if the number of the last marble were 100 times larger?
+use std::collections::LinkedList;
 
 #[derive(Clone, Debug, PartialEq)]
 struct GameConfig {
@@ -13,28 +9,67 @@ struct GameConfig {
     last_marble_worth: u32,
 }
 
+struct Game {
+    idx: usize,
+    marbles: LinkedList<u32>,
+}
+
+impl Game {
+    fn new() -> Self {
+        let mut marble = LinkedList::new();
+        marble.push_back(0);
+        Game {
+            idx: 0,
+            marbles: marble,
+        }
+    }
+    fn add_marble(&mut self, marble: u32) -> u32 {
+        if marble % 23 == 0 {
+            for _ in 0..7 {
+                self.next_back();
+            }
+            let mut tail = self.marbles.split_off(self.idx);
+            let val = tail.pop_front().unwrap();
+            self.marbles.append(&mut tail);
+            // dbg!((val, marble));
+            // dbg!(&self.marbles);
+            val + marble
+        } else {
+            for _ in 0..2 {
+                self.next();
+            }
+            let mut tail = self.marbles.split_off(self.idx);
+            tail.push_front(marble);
+            self.marbles.append(&mut tail);
+            0
+        }
+    }
+}
+
+impl Iterator for Game {
+    type Item = u32;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.idx = (self.idx + 1) % self.marbles.len();
+        Some(*self.marbles.iter().nth(self.idx).unwrap())
+    }
+}
+impl DoubleEndedIterator for Game {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let prev_idx = self.idx.checked_sub(1).unwrap_or(self.marbles.len() - 1);
+        self.idx = prev_idx;
+        Some(*self.marbles.iter().nth(prev_idx).unwrap())
+    }
+}
+
 fn part1(config: &GameConfig) -> u32 {
-    let mut played_marbles = vec![0];
-    let mut current_marble_index: usize = 0;
+    let mut game = Game::new();
     let mut players = vec![0; config.num_players];
     for (marble, player_idx) in (1..).zip((0..config.num_players).cycle()) {
-        if marble % 10000 == 0 {
-            println!(
-                "{:.2}%",
-                (marble as f32 / config.last_marble_worth as f32) * 100.
-            );
-        }
-        if marble % 23 == 0 {
-            current_marble_index = if current_marble_index < 7 {
-                played_marbles.len() - (7 - current_marble_index)
-            } else {
-                current_marble_index - 7
-            };
-            players[player_idx] += marble + played_marbles.remove(current_marble_index);
-        } else {
-            current_marble_index = (current_marble_index + 2) % played_marbles.len();
-            played_marbles.insert(current_marble_index, marble);
-        }
+        // dbg!(format!("adding marble {:#?}", &marble));
+        // dbg!(&players);
+        // dbg!(&game.idx);
+        // dbg!(&game.marbles);
+        players[player_idx] += game.add_marble(marble);
         if marble == config.last_marble_worth {
             break;
         }
