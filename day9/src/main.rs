@@ -1,7 +1,5 @@
-// Part 1: 429943
-// Part 2: 3615691746
-
-use std::collections::LinkedList;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]
 struct GameConfig {
@@ -9,55 +7,74 @@ struct GameConfig {
     last_marble_worth: u32,
 }
 
+#[derive(Default)]
+struct Marble {
+    value: u32,
+    next: Option<Rc<RefCell<Marble>>>,
+    prev: Option<Rc<RefCell<Marble>>>,
+}
+
+impl std::fmt::Debug for Marble {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "{}, next: {:?}, prev: {:?}",
+            &self.value,
+            self.next.as_ref().unwrap().borrow().value,
+            self.prev.as_ref().unwrap().borrow().value
+        )
+    }
+}
+
+#[derive(Debug)]
 struct Game {
-    idx: usize,
-    marbles: LinkedList<u32>,
+    current: Rc<RefCell<Marble>>,
 }
 
 impl Game {
     fn new() -> Self {
-        let mut marble = LinkedList::new();
-        marble.push_back(0);
+        let marble = Rc::new(RefCell::new(Marble {
+            ..Default::default()
+        }));
+        marble.borrow_mut().prev = Some(Rc::clone(&marble));
+        marble.borrow_mut().next = Some(Rc::clone(&marble));
         Game {
-            idx: 0,
-            marbles: marble,
+            current: Rc::clone(&marble),
         }
     }
-    fn add_marble(&mut self, marble: u32) -> u32 {
-        if marble % 23 == 0 {
+    fn add_marble(&mut self, value: u32) -> u32 {
+        if value % 23 == 0 {
             for _ in 0..7 {
-                self.next_back();
+                let prev = Rc::clone(self.current.borrow().prev.as_ref().unwrap());
+                self.current = prev;
             }
-            let mut tail = self.marbles.split_off(self.idx);
-            let val = tail.pop_front().unwrap();
-            self.marbles.append(&mut tail);
-            // dbg!((val, marble));
-            // dbg!(&self.marbles);
-            val + marble
+            let score = value + self.current.borrow().value;
+
+            let prev = Rc::clone(self.current.borrow().prev.as_ref().unwrap());
+            prev.borrow_mut().next = Some(Rc::clone(self.current.borrow().next.as_ref().unwrap()));
+            let next = Rc::clone(self.current.borrow().next.as_ref().unwrap());
+            next.borrow_mut().prev = Some(Rc::clone(self.current.borrow().prev.as_ref().unwrap()));
+            self.current = next;
+
+            score
         } else {
             for _ in 0..2 {
-                self.next();
+                let next = Rc::clone(self.current.borrow().next.as_ref().unwrap());
+                self.current = next;
             }
-            let mut tail = self.marbles.split_off(self.idx);
-            tail.push_front(marble);
-            self.marbles.append(&mut tail);
+            let new = Rc::new(RefCell::new(Marble {
+                value,
+                ..Default::default()
+            }));
+            let prev = Rc::clone(self.current.borrow().prev.as_ref().unwrap());
+            prev.borrow_mut().next = Some(Rc::clone(&new));
+            new.borrow_mut().prev = Some(Rc::clone(&prev));
+            let next = Rc::clone(&self.current);
+            next.borrow_mut().prev = Some(Rc::clone(&new));
+            new.borrow_mut().next = Some(Rc::clone(&next));
+            self.current = new;
             0
         }
-    }
-}
-
-impl Iterator for Game {
-    type Item = u32;
-    fn next(&mut self) -> Option<Self::Item> {
-        self.idx = (self.idx + 1) % self.marbles.len();
-        Some(*self.marbles.iter().nth(self.idx).unwrap())
-    }
-}
-impl DoubleEndedIterator for Game {
-    fn next_back(&mut self) -> Option<Self::Item> {
-        let prev_idx = self.idx.checked_sub(1).unwrap_or(self.marbles.len() - 1);
-        self.idx = prev_idx;
-        Some(*self.marbles.iter().nth(prev_idx).unwrap())
     }
 }
 
@@ -65,10 +82,6 @@ fn part1(config: &GameConfig) -> u32 {
     let mut game = Game::new();
     let mut players = vec![0; config.num_players];
     for (marble, player_idx) in (1..).zip((0..config.num_players).cycle()) {
-        // dbg!(format!("adding marble {:#?}", &marble));
-        // dbg!(&players);
-        // dbg!(&game.idx);
-        // dbg!(&game.marbles);
         players[player_idx] += game.add_marble(marble);
         if marble == config.last_marble_worth {
             break;
