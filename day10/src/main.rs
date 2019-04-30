@@ -155,22 +155,20 @@ struct Grid {
 
 impl std::fmt::Display for Grid {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let mut output = String::with_capacity(
-            (self.xmax.unwrap() - self.xmin.unwrap()) as usize
-                * (self.ymax.unwrap() - self.ymin.unwrap()) as usize,
-        );
+        let mut v = Vec::with_capacity((self.ymax.unwrap() - self.ymin.unwrap()) as usize);
         for y in self.ymin.unwrap()..=self.ymax.unwrap() {
-            dbg!(format!("writing y {}", y));
+            let mut line =
+                String::with_capacity((self.xmax.unwrap() - self.xmin.unwrap()) as usize);
             for x in self.xmin.unwrap()..=self.xmax.unwrap() {
-                output.push(if self.pointset.contains(&(x, y)) {
+                line.push(if self.pointset.contains(&(x, y)) {
                     '#'
                 } else {
                     '.'
                 })
             }
-            output.push('\n');
+            v.push(line);
         }
-        write!(f, "{}", output)
+        write!(f, "{}", v.join("\n"))
     }
 }
 
@@ -203,11 +201,11 @@ fn make_grid(points: &[Point]) -> String {
     let adjusted_xmax = xmax - xmin;
     let adjusted_ymax = ymax - ymin;
 
-    dbg!((adjusted_ymax, adjusted_xmax));
+    // dbg!((adjusted_ymax, adjusted_xmax));
     let mut grid = vec![vec!['.'; adjusted_xmax as usize + 1]; adjusted_ymax as usize + 1];
-    dbg!("finished initializing grid");
+    // dbg!("finished initializing grid");
     for (idx, point) in points.iter().enumerate() {
-        dbg!(format!("working on point {}", idx));
+        // dbg!(format!("working on point {}", idx));
         let (x, y): (usize, usize) = ((point.pos.1 - ymin) as usize, (point.pos.0 - xmin) as usize);
         grid[x][y] = '#';
     }
@@ -217,16 +215,19 @@ fn make_grid(points: &[Point]) -> String {
         .join("\n")
 }
 
-fn part1(points: &mut Vec<Point>) -> String {
+fn part1(points: &mut Vec<Point>) -> Option<String> {
     let mut most_neighbors: Option<(usize, usize)> = None;
-    let mut stars: Vec<String> = Vec::new();
-    for step in 0..100 {
+    for step in 0..1_000_000 {
         let mut grid = Grid {
             ..Default::default()
         };
 
-        dbg!(format!("Step {}", step));
+        // dbg!(format!("Step {}", step));
         for point in points.iter_mut() {
+            // Set grid with points *prior* to update so that if the count of neighbors is
+            // decreasing we can refer back to the grid prior to the change
+            grid.pointset.insert((point.pos.0, point.pos.1));
+
             point.pos.0 += point.vel.0;
             grid.xmin = grid
                 .xmin
@@ -240,11 +241,9 @@ fn part1(points: &mut Vec<Point>) -> String {
                 .min(Some(point.pos.1))
                 .or_else(|| Some(point.pos.1));
             grid.ymax = grid.ymax.max(Some(point.pos.1));
-
-            grid.pointset.insert((point.pos.0, point.pos.1));
         }
 
-        dbg!("counting neighbors");
+        // dbg!("counting neighbors");
         let neighbor_count = points.iter().fold(0, |acc, point| {
             acc + points
                 .iter()
@@ -253,28 +252,26 @@ fn part1(points: &mut Vec<Point>) -> String {
                 })
                 .count()
         });
-        if let Some((_step, count)) = most_neighbors {
-            if neighbor_count > count {
+        if let Some((_step, old_count)) = most_neighbors {
+            if neighbor_count >= old_count {
                 most_neighbors = Some((step, neighbor_count));
+            } else if neighbor_count > (points.len() * 2) {
+                println!("{}", grid.to_string());
             }
         } else {
             most_neighbors = Some((step, neighbor_count));
         }
-        dbg!("making grid");
-        stars.push(grid.to_string());
-        // stars.push(make_grid(&points));
     }
-
-    stars
-        .get(most_neighbors.expect("Nobody had any neighbors!").0)
-        .expect("Couldn't find any stars!")
-        .to_string()
+    None
 }
 
 fn main() -> std::io::Result<()> {
     let input = std::fs::read_to_string("input.txt")?;
     let points: Vec<_> = input.lines().map(|line| parse_line(line)).collect();
-    println!("part 1: {}", part1(&mut points.clone()));
+    println!(
+        "part 1: {}",
+        part1(&mut points.clone()).expect("No solution found")
+    );
     // println!("part 2: {}, part2(&input));
     Ok(())
 }
@@ -335,6 +332,6 @@ mod tests {
         .filter(|line| !line.trim().is_empty())
         .map(|line| parse_line(line))
         .collect::<Vec<_>>();
-        println!("{}", part1(&mut points));
+        println!("{}", part1(&mut points).expect("No solution found"));
     }
 }
