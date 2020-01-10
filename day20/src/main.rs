@@ -197,8 +197,7 @@
 // starting location to that room would require passing through the most doors;
 // what is the fewest doors you can pass through to reach it?
 //
-// wrong: 5089
-// wrong: 5088
+// part1: 4778
 
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -219,7 +218,7 @@ enum Direction {
 }
 
 struct Area {
-    grid: HashMap<(usize, usize), Gridpoint>,
+    grid: HashMap<(usize, usize), (Gridpoint, u32)>,
     xmax: usize,
     ymax: usize,
 }
@@ -228,40 +227,61 @@ impl Area {
     fn from_regex(input: &str) -> Self {
         use Direction::*;
         use Gridpoint::*;
-        let mut hm: HashMap<(isize, isize), Gridpoint> = HashMap::new();
+        let mut hm: HashMap<(isize, isize), (Gridpoint, u32)> = HashMap::new();
         let mut cursor: (isize, isize) = (0, 0);
-        hm.insert(cursor, Start);
+        hm.insert(cursor, (Start, 0));
         let paths = parse_regex(&input)
             .iter()
             .flat_map(Node::follow)
             .collect::<Vec<_>>();
 
         for path in paths {
+            let mut stepcount = 0;
             for step in path {
                 match step {
                     N => {
                         cursor.1 += 1;
-                        hm.insert(cursor, NSDoor);
+                        hm.insert(cursor, (NSDoor, 0));
                         cursor.1 += 1;
-                        hm.insert(cursor, Room);
+                        if let Some((_, count)) = hm.get(&cursor) {
+                            stepcount = *count;
+                        } else {
+                            stepcount += 1;
+                            hm.insert(cursor, (Room, stepcount));
+                        }
                     }
                     E => {
                         cursor.0 += 1;
-                        hm.insert(cursor, WEDoor);
+                        hm.insert(cursor, (WEDoor, 0));
                         cursor.0 += 1;
-                        hm.insert(cursor, Room);
+                        if let Some((_, count)) = hm.get(&cursor) {
+                            stepcount = *count;
+                        } else {
+                            stepcount += 1;
+                            hm.insert(cursor, (Room, stepcount));
+                        }
                     }
                     S => {
                         cursor.1 -= 1;
-                        hm.insert(cursor, NSDoor);
+                        hm.insert(cursor, (NSDoor, 0));
                         cursor.1 -= 1;
-                        hm.insert(cursor, Room);
+                        if let Some((_, count)) = hm.get(&cursor) {
+                            stepcount = *count;
+                        } else {
+                            stepcount += 1;
+                            hm.insert(cursor, (Room, stepcount));
+                        }
                     }
                     W => {
                         cursor.0 -= 1;
-                        hm.insert(cursor, WEDoor);
+                        hm.insert(cursor, (WEDoor, 0));
                         cursor.0 -= 1;
-                        hm.insert(cursor, Room);
+                        if let Some((_, count)) = hm.get(&cursor) {
+                            stepcount = *count;
+                        } else {
+                            stepcount += 1;
+                            hm.insert(cursor, (Room, stepcount));
+                        }
                     }
                 }
             }
@@ -274,7 +294,7 @@ impl Area {
             ys.iter().min().unwrap(),
             ys.iter().max().unwrap(),
         );
-        let mut adjusted_hm: HashMap<(usize, usize), Gridpoint> = HashMap::new();
+        let mut adjusted_hm: HashMap<(usize, usize), (Gridpoint, u32)> = HashMap::new();
 
         // Add 1 to account for the wall border
         for ((x, y), g) in hm {
@@ -286,12 +306,15 @@ impl Area {
                 g,
             );
         }
-        // Add 2 to account for inner and outer wall borders
+        // Add 3 to account for inner and outer wall borders
         Area {
             grid: adjusted_hm,
             xmax: (xmax - xmin + 3).try_into().unwrap(),
             ymax: (ymax - ymin + 3).try_into().unwrap(),
         }
+    }
+    fn longest(&self) -> u32 {
+        *self.grid.values().map(|(_, count)| count).max().unwrap()
     }
 }
 
@@ -323,6 +346,7 @@ impl fmt::Display for Area {
                         // ymax - y to invert the y axis, since we are printing
                         // from the top down, -1 to account for wall
                         .get(&(x, self.ymax - y - 1))
+                        .map(|(room, _)| room)
                         .unwrap_or(&Gridpoint::default())
                 )?;
             }
@@ -508,15 +532,16 @@ impl From<char> for Direction {
     }
 }
 
-fn part1(input: &str) -> usize {
-    println!("{}", Area::from_regex(input).to_string());
-    parse_regex(input).iter().map(Node::longest).max().unwrap()
+fn part1(input: &str) -> u32 {
+    let area = Area::from_regex(input);
+    // println!("{}", area.to_string());
+    area.longest()
 }
 
 fn main() -> Result<()> {
-    // let input = std::fs::read_to_string("input.txt")?;
-    let input = "^(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)(N|S|E|W)$";
+    let input = std::fs::read_to_string("input.txt")?;
     let input = input.trim();
+
     println!("part1: {}", part1(&input));
     Ok(())
 }
