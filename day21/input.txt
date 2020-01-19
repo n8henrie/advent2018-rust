@@ -28,5 +28,5 @@ seti 17 9 5
 setr 2 2 3
 seti 7 3 5
 eqrr 4 0 2
-addr 2 5 5
+addr 2 5 5 
 seti 5 9 5
