@@ -192,8 +192,3 @@ fn main() -> Result<()> {
     println!("part2: {}", solution.1.unwrap());
     Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-}
