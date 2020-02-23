@@ -278,6 +278,7 @@ impl<'a> PartialOrd for Extrema<'a> {
 impl<'a> Ord for Extrema<'a> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.max_bots.cmp(&other.max_bots)
+        // .then_with(|| other.volume.cmp(&self.volume))
     }
 }
 
@@ -292,26 +293,25 @@ fn get_points(bots: &[Bot]) -> Result<Vec<Extrema>> {
                 break;
             }
         }
-        let grids = grid.split()?;
-        for grid in grids {
-            if grid.volume == 1 {
-                // Calculate actual max_bots instead of estimated
-                let mut grid = grid;
-                let before = grid.max_bots;
-                grid.calculate_bots();
-                // dbg!(grid.xmin, grid.ymin, grid.zmin);
-                // dbg!(before, grid.max_bots);
-                // dbg!(points.len(), heap.len());
+        if grid.volume != 1 {
+            let grids = grid.split()?;
+            heap.append(&mut grids.into());
+            continue;
+        }
 
-                match (grid, points.first()) {
-                    (g, None) => points.push(g),
-                    (g, Some(p)) if g.max_bots > p.max_bots => points = vec![g],
-                    (g, Some(p)) if g.max_bots == p.max_bots => points.push(g),
-                    _ => (),
-                }
-            } else {
-                heap.push(grid);
-            }
+        // Calculate actual max_bots instead of estimated
+        let mut grid = grid;
+        let before = grid.max_bots;
+        grid.calculate_bots();
+        // dbg!(grid.xmin, grid.ymin, grid.zmin);
+        // dbg!(before, grid.max_bots);
+        // dbg!(points.len(), heap.len());
+
+        match (grid, points.first()) {
+            (g, None) => points.push(g),
+            (g, Some(p)) if g.max_bots > p.max_bots => points = vec![g],
+            (g, Some(p)) if g.max_bots == p.max_bots => points.push(g),
+            _ => (),
         }
     }
     Ok(points)
