@@ -1,68 +1,3 @@
-// --- Day 23: Experimental Emergency Teleportation ---
-//
-// Using your torch to search the darkness of the rocky cavern, you finally locate the man's friend: a small reindeer.
-//
-// You're not sure how it got so far in this cave. It looks sick - too sick to walk - and too heavy for you to carry all the way back. Sleighs won't be invented for another 1500 years, of course.
-//
-// The only option is experimental emergency teleportation.
-//
-// You hit the "experimental emergency teleportation" button on the device and push I accept the risk on no fewer than 18 different warning messages. Immediately, the device deploys hundreds of tiny nanobots which fly around the cavern, apparently assembling themselves into a very specific formation. The device lists the X,Y,Z position (pos) for each nanobot as well as its signal radius (r) on its tiny screen (your puzzle input).
-//
-// Each nanobot can transmit signals to any integer coordinate which is a distance away from it less than or equal to its signal radius (as measured by Manhattan distance). Coordinates a distance away of less than or equal to a nanobot's signal radius are said to be in range of that nanobot.
-//
-// Before you start the teleportation process, you should determine which nanobot is the strongest (that is, which has the largest signal radius) and then, for that nanobot, the total number of nanobots that are in range of it, including itself.
-//
-// For example, given the following nanobots:
-//
-// pos=<0,0,0>, r=4
-// pos=<1,0,0>, r=1
-// pos=<4,0,0>, r=3
-// pos=<0,2,0>, r=1
-// pos=<0,5,0>, r=3
-// pos=<0,0,3>, r=1
-// pos=<1,1,1>, r=1
-// pos=<1,1,2>, r=1
-// pos=<1,3,1>, r=1
-//
-// The strongest nanobot is the first one (position 0,0,0) because its signal radius, 4 is the largest. Using that nanobot's location and signal radius, the following nanobots are in or out of range:
-//
-//     The nanobot at 0,0,0 is distance 0 away, and so it is in range.
-//     The nanobot at 1,0,0 is distance 1 away, and so it is in range.
-//     The nanobot at 4,0,0 is distance 4 away, and so it is in range.
-//     The nanobot at 0,2,0 is distance 2 away, and so it is in range.
-//     The nanobot at 0,5,0 is distance 5 away, and so it is not in range.
-//     The nanobot at 0,0,3 is distance 3 away, and so it is in range.
-//     The nanobot at 1,1,1 is distance 3 away, and so it is in range.
-//     The nanobot at 1,1,2 is distance 4 away, and so it is in range.
-//     The nanobot at 1,3,1 is distance 5 away, and so it is not in range.
-//
-// In this example, in total, 7 nanobots are in range of the nanobot with the largest signal radius.
-//
-// Find the nanobot with the largest signal radius. How many nanobots are in range of its signals?
-// --- Part Two ---
-
-// Now, you just need to figure out where to position yourself so that you're actually teleported when the nanobots activate.
-//
-// To increase the probability of success, you need to find the coordinate which puts you in range of the largest number of nanobots. If there are multiple, choose one closest to your position (0,0,0, measured by manhattan distance).
-//
-// For example, given the following nanobot formation:
-//
-// pos=<10,12,12>, r=2
-// pos=<12,14,12>, r=2
-// pos=<16,12,12>, r=4
-// pos=<14,14,14>, r=6
-// pos=<50,50,50>, r=200
-// pos=<10,10,10>, r=5
-//
-// Many coordinates are in range of some of the nanobots in this formation. However, only the coordinate 12,12,12 is in range of the most nanobots: it is in range of the first five, but is not in range of the nanobot at 10,10,10. (All other coordinates are in range of fewer than five nanobots.) This coordinate's distance from 0,0,0 is 36.
-//
-// Find the coordinates that are in range of the largest number of nanobots. What is the shortest manhattan distance between any of those points and 0,0,0?
-//
-// Although it hasn't changed, you can still get your puzzle input.
-
-// part1: 640
-// part2:
-//   - wrong: 114653985
 use std::collections::BinaryHeap;
 use std::convert::TryInto;
 use std::error;
@@ -144,7 +79,7 @@ struct Extrema<'a> {
     zmin: isize,
     zmax: isize,
     volume: u128,
-    max_bots: usize,
+    max_bots: Option<usize>,
     bots: &'a [Bot],
 }
 
@@ -173,9 +108,8 @@ impl<'a> Extrema<'a> {
     ) -> Result<Self> {
         let volume: u128 =
             (xmax - xmin + 1) as u128 * (ymax - ymin + 1) as u128 * (zmax - zmin + 1) as u128;
-        let max_bots = Self::max_bots(xmin, xmax, ymin, ymax, zmin, zmax, bots);
 
-        Ok(Self {
+        let mut pre_calc = Self {
             xmin,
             xmax,
             ymin,
@@ -184,35 +118,10 @@ impl<'a> Extrema<'a> {
             zmax,
             bots,
             volume: volume.try_into()?,
-            // .unwrap_or_else(|_| {
-            //     panic!(
-            //         "problem with: {} {} {} {} {} {}",
-            //         xmin, xmax, ymin, ymax, zmin, zmax
-            //     )
-            // }),
-            max_bots,
-        })
-    }
-
-    fn max_bots(
-        xmin: isize,
-        xmax: isize,
-        ymin: isize,
-        ymax: isize,
-        zmin: isize,
-        zmax: isize,
-        bots: &[Bot],
-    ) -> usize {
-        bots.iter()
-            .filter(|bot| {
-                !(bot.pos.0 + (bot.r as isize) < xmin
-                    || bot.pos.0 - (bot.r as isize) > xmax
-                    || bot.pos.1 + (bot.r as isize) < ymin
-                    || bot.pos.1 - (bot.r as isize) > ymax
-                    || bot.pos.2 + (bot.r as isize) < zmin
-                    || bot.pos.2 - (bot.r as isize) > zmax)
-            })
-            .count()
+            max_bots: None,
+        };
+        pre_calc.calculate_bots();
+        Ok(pre_calc)
     }
 
     fn from_bots(bots: &'a [Bot]) -> Result<Self> {
@@ -256,16 +165,41 @@ impl<'a> Extrema<'a> {
     }
 
     fn calculate_bots(&mut self) {
-        self.max_bots = self.bots.iter().fold(0, |acc, bot| {
+        self.max_bots = Some(self.bots.iter().fold(0, |acc, bot| {
             let (p, r) = (bot.pos, bot.r);
-            if r as isize
-                >= ((p.0 - self.xmin).abs() + (p.1 - self.ymin).abs() + (p.2 - self.zmin).abs())
-            {
+            if r as u32 >= self.abs_distance(&p) {
                 acc + 1
             } else {
                 acc
             }
-        });
+        }));
+    }
+
+    fn abs_distance(&self, other: &(isize, isize, isize)) -> u32 {
+        let x_dis = {
+            if self.xmin <= other.0 && self.xmax >= other.0 {
+                0
+            } else {
+                (self.xmin - other.0).abs().min((self.xmax - other.0).abs())
+            }
+        };
+
+        let y_dis = {
+            if self.ymin <= other.1 && self.ymax >= other.1 {
+                0
+            } else {
+                (self.ymin - other.1).abs().min((self.ymax - other.1).abs())
+            }
+        };
+
+        let z_dis = {
+            if self.zmin <= other.2 && self.zmax >= other.2 {
+                0
+            } else {
+                (self.zmin - other.2).abs().min((self.zmax - other.2).abs())
+            }
+        };
+        (x_dis + y_dis + z_dis) as u32
     }
 }
 
@@ -277,44 +211,30 @@ impl<'a> PartialOrd for Extrema<'a> {
 
 impl<'a> Ord for Extrema<'a> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.max_bots.cmp(&other.max_bots)
-        // .then_with(|| other.volume.cmp(&self.volume))
+        self.max_bots
+            .cmp(&other.max_bots)
+            .then_with(|| {
+                other
+                    .abs_distance(&(0, 0, 0))
+                    .cmp(&self.abs_distance(&(0, 0, 0)))
+            })
+            .then_with(|| other.volume.cmp(&self.volume))
     }
 }
 
-fn get_points(bots: &[Bot]) -> Result<Vec<Extrema>> {
+fn get_point(bots: &[Bot]) -> Result<Extrema> {
     let mut heap = BinaryHeap::new();
-    let mut points = <Vec<Extrema>>::new();
-    heap.push(Extrema::from_bots(bots)?);
+    let grid = Extrema::from_bots(bots)?;
+    heap.push(grid);
 
     while let Some(grid) = heap.pop() {
-        if let Some(p) = points.first() {
-            if grid.max_bots < p.max_bots {
-                break;
-            }
-        }
-        if grid.volume != 1 {
-            let grids = grid.split()?;
-            heap.append(&mut grids.into());
-            continue;
-        }
-
-        // Calculate actual max_bots instead of estimated
-        let mut grid = grid;
-        let before = grid.max_bots;
-        grid.calculate_bots();
-        // dbg!(grid.xmin, grid.ymin, grid.zmin);
-        // dbg!(before, grid.max_bots);
-        // dbg!(points.len(), heap.len());
-
-        match (grid, points.first()) {
-            (g, None) => points.push(g),
-            (g, Some(p)) if g.max_bots > p.max_bots => points = vec![g],
-            (g, Some(p)) if g.max_bots == p.max_bots => points.push(g),
-            _ => (),
+        if grid.volume == 1 {
+            return Ok(grid);
+        } else {
+            heap.append(&mut grid.split()?.into());
         }
     }
-    Ok(points)
+    Err(err!("No closest point found"))
 }
 
 fn part2(input: &str) -> Result<u32> {
@@ -322,14 +242,14 @@ fn part2(input: &str) -> Result<u32> {
         .lines()
         .map(|line| line.parse())
         .collect::<Result<Vec<Bot>>>()?;
-    let points = get_points(&bots)?;
-    distance_of_closest_point(&points)
+    let point = get_point(&bots)?;
+    distance_of_closest_point(&[point])
 }
 
 fn distance_of_closest_point(points: &[Extrema]) -> Result<u32> {
     Ok(points
         .iter()
-        .map(|e| (e.xmin.abs() + e.ymin.abs() + e.zmin.abs()))
+        .map(|e| e.abs_distance(&(0, 0, 0)))
         .min()
         .ok_or_else(|| err!("No minimum"))?
         .try_into()?)
@@ -412,7 +332,95 @@ pos=<10,10,10>, r=5";
             .collect::<Result<Vec<Bot>>>()
             .unwrap();
 
-        let points = get_points(&bots).unwrap();
-        assert_eq!(points.len(), 1);
+        let point = get_point(&bots).unwrap();
+        for (min, max) in &[
+            (point.xmin, point.xmax),
+            (point.ymin, point.ymax),
+            (point.zmin, point.zmax),
+        ] {
+            assert_eq!(min, max)
+        }
+        let pos = (point.xmin, point.ymin, point.zmin);
+        assert_eq!(pos, (12, 12, 12))
+    }
+
+    #[test]
+    fn test_abs_distance() {
+        let input = "pos=<10,12,12>, r=2
+pos=<12,14,12>, r=2
+pos=<16,12,12>, r=4
+pos=<14,14,14>, r=6
+pos=<50,50,50>, r=200
+pos=<10,10,10>, r=5";
+        let bots = input
+            .lines()
+            .map(|line| line.parse())
+            .collect::<Result<Vec<Bot>>>()
+            .unwrap();
+        let point = Extrema::new(-1, 1, -1, 1, -1, 1, &bots).unwrap();
+        assert_eq!(point.abs_distance(&(0, 0, 0)), 0);
+        let point = Extrema::new(-4, -2, -5, -3, -12, -10, &bots).unwrap();
+        assert_eq!(point.abs_distance(&(0, 0, 0)), 15);
+        let point = Extrema::new(2, 4, 3, 5, 10, 12, &bots).unwrap();
+        assert_eq!(point.abs_distance(&(0, 0, 0)), 15);
+        let point = Extrema::new(0, 0, 0, 0, 0, 0, &bots).unwrap();
+        assert_eq!(point.abs_distance(&(1, 1, 1)), 3);
+        let point = Extrema::new(10, 20, 10, 20, 10, 20, &bots).unwrap();
+        assert_eq!(point.abs_distance(&(15, 15, 5)), 5);
+    }
+
+    #[test]
+    fn test_heap_sort() {
+        let input = "pos=<10,12,12>, r=2
+pos=<12,14,12>, r=2
+pos=<16,12,12>, r=4
+pos=<14,14,14>, r=6
+pos=<50,50,50>, r=200
+pos=<10,10,10>, r=5";
+        let bots = input
+            .lines()
+            .map(|line| line.parse())
+            .collect::<Result<Vec<Bot>>>()
+            .unwrap();
+        let grid = Extrema::from_bots(&bots).unwrap();
+        // grid.calculate_bots();
+        assert_eq!(
+            (
+                grid.xmin,
+                grid.xmax,
+                grid.ymin,
+                grid.ymax,
+                grid.zmin,
+                grid.zmax,
+                grid.max_bots
+            ),
+            (0, 50, 0, 50, 0, 50, Some(6))
+        );
+
+        let grids = grid.split().unwrap();
+        let mut heap = <BinaryHeap<_>>::from(grids);
+        let top = heap.pop().unwrap();
+        assert_eq!(
+            (top.xmin, top.xmax, top.ymin, top.ymax, top.zmin, top.zmax),
+            (0, 25, 0, 25, 0, 25)
+        );
+        heap.append(&mut top.split().unwrap().into());
+        let top = heap.pop().unwrap();
+        assert_eq!(
+            (top.xmin, top.xmax, top.ymin, top.ymax, top.zmin, top.zmax),
+            (0, 12, 0, 12, 0, 12)
+        );
+        heap.append(&mut top.split().unwrap().into());
+        let top = heap.pop().unwrap();
+        assert_eq!(
+            (top.xmin, top.xmax, top.ymin, top.ymax, top.zmin, top.zmax),
+            (7, 12, 7, 12, 7, 12)
+        );
+        heap.append(&mut top.split().unwrap().into());
+        let top = heap.pop().unwrap();
+        assert_eq!(
+            (top.xmin, top.xmax, top.ymin, top.ymax, top.zmin, top.zmax),
+            (10, 12, 10, 12, 10, 12)
+        );
     }
 }
