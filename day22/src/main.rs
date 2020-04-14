@@ -92,7 +92,8 @@ impl Cave {
             *val
         } else {
             match coords {
-                (0, 0) | _ if coords == self.target => 0,
+                _ if coords == self.target => 0,
+                (0, 0) => 0,
                 (x, 0) => x as u32 * 16807,
                 (0, y) => y as u32 * 48271,
                 (x, y) => {
@@ -304,7 +305,7 @@ fn part2(input: &str) -> Result<u32> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+    let input = std::fs::read_to_string("day22/input.txt")?;
     writeln!(io::stdout(), "part1: {}", part1(&input)?)?;
     writeln!(io::stdout(), "part2: {}", part2(&input)?)?;
     Ok(())
@@ -315,7 +316,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_parse() {
-        let input = std::fs::read_to_string("input.txt").unwrap();
+        let input = std::fs::read_to_string("day22/input.txt").unwrap();
         assert_eq!(parse_input(&input).unwrap(), (11394, (7, 701)))
     }
 

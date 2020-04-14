@@ -22,7 +22,7 @@ impl CheckSum {
 }
 
 fn part1() -> io::Result<()> {
-    let f = File::open("input.txt")?;
+    let f = File::open("day2/input.txt")?;
 
     let mut checksum = CheckSum::new();
     for line in BufReader::new(f).lines().map(|s| s.unwrap()) {
@@ -45,7 +45,7 @@ fn part1() -> io::Result<()> {
 }
 
 fn part2() -> io::Result<()> {
-    let text = fs::read_to_string("input.txt")?;
+    let text = fs::read_to_string("day2/input.txt")?;
     let lines: Vec<_> = text.as_str().lines().collect();
     for line in lines.iter() {
         let matches: Vec<_> = lines
@@ -70,7 +70,8 @@ fn part2() -> io::Result<()> {
     Ok(())
 }
 
-fn main() {
-    part1();
-    part2();
+fn main() -> io::Result<()> {
+    part1()?;
+    part2()?;
+    Ok(())
 }

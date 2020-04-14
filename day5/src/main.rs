@@ -39,7 +39,6 @@ fn part1(input: &str) -> usize {
 
 fn part2(input: &str) -> usize {
     (b'a'..b'z' + 1)
-        .into_iter()
         .map(|c| {
             part1(
                 input
@@ -53,7 +52,8 @@ fn part2(input: &str) -> usize {
 }
 
 fn main() {
-    let input = std::fs::read_to_string("input.txt").expect("unable to read input file");
+
+    let input = std::fs::read_to_string("day5/input.txt").expect("unable to read input file");
     let input = input.trim();
     println!("part1: {}", part1(&input));
     println!("part2: {}", part2(&input));

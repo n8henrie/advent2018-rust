@@ -123,7 +123,8 @@ fn part2(input: &str, num_workers: u32, delay: u32) -> u32 {
 }
 
 fn main() -> std::io::Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day7/input.txt")?;
     println!("Part 1: {}", part1(&input));
     println!("Part 2: {}", part2(&input, 5, 60));
     Ok(())

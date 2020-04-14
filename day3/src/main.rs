@@ -1,6 +1,5 @@
 use nom::{
-    call, char, complete, digit, do_parse, error_position, map_res, named, separated_list,
-    separated_list_complete, space, types::CompleteStr,
+    char, digit, do_parse, map_res, named, separated_list_complete, space, types::CompleteStr,
 };
 use std::collections::HashMap;
 use std::fs;
@@ -115,7 +114,8 @@ fn part2(input: &str) -> u32 {
 }
 
 fn main() -> io::Result<()> {
-    let input = fs::read_to_string("input.txt")?;
+
+    let input = fs::read_to_string("day3/input.txt")?;
     println!("Number of overlapping points: {}", part1(&input));
     println!("ID of claim with all unique points: {}", part2(&input));
     Ok(())

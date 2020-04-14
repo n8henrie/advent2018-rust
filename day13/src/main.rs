@@ -3,7 +3,7 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-type Result<T> = std::result::Result<T, Box<std::error::Error>>;
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Clone, Debug)]
 enum Direction {
@@ -180,7 +180,8 @@ fn part2(grid: Grid, carts: &mut Vec<Cart>) -> (usize, usize) {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day13/input.txt")?;
     let (grid, mut carts) = parse_input(&input);
     let (part1x, part1y) = part1(grid.clone(), &mut carts.clone());
     let (part2x, part2y) = part2(grid, &mut carts);
@@ -195,12 +196,12 @@ mod tests {
     #[test]
     fn test_part1() {
         let track = r#"
-/->-\        
+/->-\
 |   |  /----\
 | /-+--+-\  |
 | | |  | v  |
 \-+-/  \-+--/
-  \------/   
+  \------/
 "#;
         let input = track
             .lines()
@@ -214,8 +215,8 @@ mod tests {
     #[test]
     fn test_part2() {
         let track = r#"
-/>-<\  
-|   |  
+/>-<\
+|   |
 | /<+-\
 | | | v
 \>+</ |

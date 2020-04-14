@@ -133,7 +133,7 @@ fn part1(points: &[Point]) -> u32 {
         .1 as u32
 }
 
-fn part2(points: &Vec<Point>) -> u32 {
+fn part2(points: &[Point]) -> u32 {
     Grid::new(points)
         .points
         .iter()

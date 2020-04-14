@@ -106,7 +106,8 @@ fn part2(config: &GameConfig) -> u32 {
 }
 
 fn main() -> std::io::Result<()> {
-    let input = parse_input(std::fs::read_to_string("input.txt")?.as_str());
+
+    let input = parse_input(std::fs::read_to_string("day9/input.txt")?.as_str());
     println!("Part 1: {}", part1(&input));
     println!("Part 2: {}", part2(&input));
     Ok(())

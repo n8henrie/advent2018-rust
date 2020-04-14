@@ -19,7 +19,6 @@ fn part1(input: u32) -> String {
                 .into_iter()
                 .take(10)
                 .collect();
-            ;
         }
 
         let first_elf_idx = (first_elf.0 + first_elf.1 as usize + 1) % full_recipe.len();
@@ -53,7 +52,7 @@ fn part2(input: &str) -> usize {
         full_recipe.extend(new_recipe);
 
         if let Some(idx) = check_queue.get(0) {
-            if full_recipe.len().checked_sub(input.len()).unwrap_or(0) > *idx {
+            if full_recipe.len().saturating_sub(input.len()) > *idx {
                 {
                     check_queue.pop_front();
 

@@ -255,7 +255,7 @@ fn part2(input: &str, register: &mut [usize; 6]) -> Result<usize> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+    let input = std::fs::read_to_string("day19/input.txt")?;
     let mut reg: [usize; 6] = [0; 6];
     println!("part1: {}", part1(&input, &mut reg)?);
     reg = [0; 6];

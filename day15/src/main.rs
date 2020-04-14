@@ -326,7 +326,7 @@ impl std::fmt::Display for Board {
 }
 
 impl FromStr for Board {
-    type Err = Box<std::error::Error>;
+    type Err = Box<dyn std::error::Error>;
     fn from_str(input: &str) -> Result<Board, Self::Err> {
         let mut rows = Vec::new();
         for line in input.lines() {
@@ -372,7 +372,7 @@ where
     });
 }
 
-fn part1(input: &str) -> Result<u32, Box<std::error::Error>> {
+fn part1(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
     let mut board: Board = input.parse()?;
     for round in 0.. {
         // println!("Round: {}\n{}", round, board.to_string());
@@ -449,7 +449,7 @@ fn part1(input: &str) -> Result<u32, Box<std::error::Error>> {
     )))
 }
 
-fn part2(input: &str) -> Result<u32, Box<std::error::Error>> {
+fn part2(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
     'outer: for power in 3..255 {
         let mut board: Board = input.parse()?;
         let mut elf_count = 0;
@@ -549,8 +549,9 @@ fn part2(input: &str) -> Result<u32, Box<std::error::Error>> {
     )))
 }
 
-fn main() -> Result<(), Box<std::error::Error>> {
-    let input = std::fs::read_to_string("input.txt")?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let input = std::fs::read_to_string("day15/input.txt")?;
     println!("Part 1: {:?}", part1(&input)?);
     println!("Part 2: {:?}", part2(&input)?);
     Ok(())

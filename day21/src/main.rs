@@ -17,7 +17,7 @@ fn addr(command: &Arguments, input: &mut [usize; 6]) {
 }
 
 /// (multiply register) stores into register C the result of multiplying register A and register B.
-fn mulr(command: &Arguments, input: &mut [usize; 6]) {
+fn _mulr(command: &Arguments, input: &mut [usize; 6]) {
     input[command[2]] = input[command[0]] * input[command[1]];
 }
 
@@ -27,7 +27,7 @@ fn muli(command: &Arguments, input: &mut [usize; 6]) {
 }
 
 /// banr (bitwise AND register) stores into register C the result of the bitwise AND of register A and register B.
-fn banr(command: &Arguments, input: &mut [usize; 6]) {
+fn _banr(command: &Arguments, input: &mut [usize; 6]) {
     input[command[2]] = input[command[0]] & input[command[1]];
 }
 
@@ -37,7 +37,7 @@ fn bani(command: &Arguments, input: &mut [usize; 6]) {
 }
 
 /// borr (bitwise OR register) stores into register C the result of the bitwise OR of register A and register B.
-fn borr(command: &Arguments, input: &mut [usize; 6]) {
+fn _borr(command: &Arguments, input: &mut [usize; 6]) {
     input[command[2]] = input[command[0]] | input[command[1]];
 }
 
@@ -62,7 +62,7 @@ fn gtir(command: &Arguments, input: &mut [usize; 6]) {
 }
 
 /// gtri (greater-than register/immediate) sets register C to 1 if register A is greater than value B. Otherwise, register C is set to 0.
-fn gtri(command: &Arguments, input: &mut [usize; 6]) {
+fn _gtri(command: &Arguments, input: &mut [usize; 6]) {
     input[command[2]] = if input[command[0]] > command[1] { 1 } else { 0 };
 }
 
@@ -76,7 +76,7 @@ fn gtrr(command: &Arguments, input: &mut [usize; 6]) {
 }
 
 /// eqir (equal immediate/register) sets register C to 1 if value A is equal to register B. Otherwise, register C is set to 0.
-fn eqir(command: &Arguments, input: &mut [usize; 6]) {
+fn _eqir(command: &Arguments, input: &mut [usize; 6]) {
     input[command[2]] = if command[0] == input[command[1]] {
         1
     } else {
@@ -159,7 +159,8 @@ impl<'a> Program<'a> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day21/input.txt")?;
     let mut lines = input.lines();
     let ip = lines
         .next()

@@ -106,7 +106,8 @@ fn part1(points: &mut Vec<Point>) -> Option<(String, usize)> {
 }
 
 fn main() -> std::io::Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day10/input.txt")?;
     let mut points: Vec<_> = input.lines().map(|line| parse_line(line)).collect();
 
     if let Some((stars, steps)) = part1(&mut points) {

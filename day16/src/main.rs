@@ -203,8 +203,8 @@ fn parse_program(input: &[&str]) -> Vec<[usize; 4]> {
         .collect()
 }
 
-fn main() -> Result<(), Box<std::error::Error>> {
-    let input = std::fs::read_to_string("input.txt")?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let input = std::fs::read_to_string("day16/input.txt")?;
     let commands: Vec<RegisterCommand> = input
         .lines()
         .collect::<Vec<_>>()
@@ -223,7 +223,7 @@ fn main() -> Result<(), Box<std::error::Error>> {
 }
 
 impl FromStr for RegisterCommand {
-    type Err = Box<std::error::Error>;
+    type Err = Box<dyn std::error::Error>;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let parse_line = |line: &str, prefix| {
             if !line.starts_with(prefix) {

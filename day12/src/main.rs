@@ -55,10 +55,10 @@ impl std::fmt::Display for PotDeque {
     }
 }
 
-type Result<T> = std::result::Result<T, Box<std::error::Error>>;
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 impl FromStr for Rule {
-    type Err = Box<std::error::Error>;
+    type Err = Box<dyn std::error::Error>;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         let mut chars = s.trim().chars();
@@ -146,7 +146,8 @@ fn part1(input: &str, generations: u64) -> Result<i64> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day12/input.txt")?;
     println!("part 1: {}", part1(&input, 20)?);
     println!("part 2: {}", part1(&input, 50_000_000_000)?);
     Ok(())

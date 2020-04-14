@@ -30,19 +30,20 @@ fn part2(inputfile: &str) -> io::Result<()> {
         }
         let line = line.trim().parse::<i32>().unwrap();
         num += line;
-        if seen.insert(num.clone()) == false {
+        if !seen.insert(num.clone()) {
             println!("{}", num);
             return Ok(());
         }
     }
 }
 
-fn main() {
+fn main() -> io::Result<()> {
     let homedir = match env::var("HOME") {
         Ok(val) => val,
         Err(_) => "/".to_string(),
     };
     let inputfile = format!("{}/{}", homedir, "git/advent2018-rust/day1/input.txt");
-    part1(&inputfile);
-    part2(&inputfile);
+    part1(&inputfile)?;
+    part2(&inputfile)?;
+    Ok(())
 }

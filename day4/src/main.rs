@@ -152,12 +152,7 @@ fn find_sleepiest(sleep_times: &HashMap<u32, Vec<u32>>) -> (&u32, &Vec<u32>) {
 }
 
 fn find_most_asleep_minute(times: &[u32]) -> u8 {
-    times
-        .into_iter()
-        .enumerate()
-        .max_by_key(|(_, n)| *n)
-        .unwrap()
-        .0 as u8
+    times.iter().enumerate().max_by_key(|(_, n)| *n).unwrap().0 as u8
 }
 
 fn part1(sleep_times: &HashMap<u32, Vec<u32>>) -> u32 {
@@ -181,7 +176,8 @@ fn part2(sleep_times: &HashMap<u32, Vec<u32>>) -> u32 {
 }
 
 fn main() -> io::Result<()> {
-    let input = fs::read_to_string("input.txt")?;
+
+    let input = fs::read_to_string("day4/input.txt")?;
 
     let mut events = match parse_lines(CompleteStr(&input)) {
         Ok((_remaining, value)) => value,
@@ -210,6 +206,6 @@ mod tests {
 
     #[test]
     fn test_find_most_asleep_minute() {
-        assert_eq!(find_most_asleep_minute(&vec![0, 0, 0, 1, 0, 4, 2, 0]), 5)
+        assert_eq!(find_most_asleep_minute(&[0, 0, 0, 1, 0, 4, 2, 0]), 5)
     }
 }

@@ -3,7 +3,7 @@ use std::convert::TryInto;
 use std::io::{Error, ErrorKind::InvalidInput};
 use std::str::FromStr;
 
-type Result<T> = std::result::Result<T, Box<std::error::Error>>;
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(PartialEq, Clone, Debug, Hash, Eq)]
 enum Acre {
@@ -127,7 +127,7 @@ impl Iterator for ForestIterator {
 }
 
 impl FromStr for Forest {
-    type Err = Box<std::error::Error>;
+    type Err = Box<dyn std::error::Error>;
     fn from_str(input: &str) -> Result<Self> {
         use Acre::*;
         let mut rows = Vec::new();
@@ -188,7 +188,8 @@ fn run_simulation(input: &str, iterations: usize) -> Result<u32> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day18/input.txt")?;
     println!("part1: {}", run_simulation(&input, 10)?);
     println!("part2: {}", run_simulation(&input, 1_000_000_000)?);
     Ok(())

@@ -330,7 +330,8 @@ fn part2(input: &str) -> usize {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day20/input.txt")?;
     let input = input.trim();
 
     println!("part1: {}", part1(&input));

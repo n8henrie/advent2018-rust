@@ -256,7 +256,8 @@ fn distance_of_closest_point(points: &[Extrema]) -> Result<u32> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day23/input.txt")?;
     writeln!(io::stdout(), "part1: {}", part1(&input)?)?;
     writeln!(io::stdout(), "part2: {}", part2(&input)?)?;
     Ok(())
@@ -292,7 +293,8 @@ pos=<10,10,10>, r=5";
 
     #[test]
     fn test_volume() {
-        let input = std::fs::read_to_string("input.txt").unwrap();
+        let input = std::fs::read_to_string("day23/input.txt").unwrap();
+        let input = std::fs::read_to_string("day23/input.txt").unwrap();
         let bots = input
             .lines()
             .map(|line| line.parse())

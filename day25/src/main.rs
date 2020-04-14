@@ -99,7 +99,8 @@ fn part1(input: &str) -> Result<usize> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day25/input.txt")?;
     writeln!(io::stdout(), "part1: {:?}", part1(&input)?)?;
     Ok(())
 }

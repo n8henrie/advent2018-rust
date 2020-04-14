@@ -185,7 +185,7 @@ fn propagate(board: Arc<Mutex<Board>>, pos: (usize, usize)) {
             pos.1 -= 1;
             propagate(board, pos)
         }
-        (Ok(StopReason::TooFar), Ok(StopReason::TooFar)) => return,
+        (Ok(StopReason::TooFar), Ok(StopReason::TooFar)) => {}
 
         (l, r) => {
             for dir in &[l, r] {
@@ -266,7 +266,8 @@ impl FromStr for Board {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day17/input.txt")?;
     let output = part1(&input)?;
     println!("part1: {}", output.0);
     println!("part2: {}", output.1);

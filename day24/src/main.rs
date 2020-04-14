@@ -437,7 +437,8 @@ fn part2(input: &str) -> Result<u32> {
 }
 
 fn main() -> Result<()> {
-    let input = std::fs::read_to_string("input.txt")?;
+
+    let input = std::fs::read_to_string("day24/input.txt")?;
     writeln!(io::stdout(), "part1: {:?}", part1(&input)?)?;
     writeln!(io::stdout(), "part2: {:?}", part2(&input)?)?;
     Ok(())
