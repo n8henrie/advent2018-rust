@@ -68,15 +68,13 @@ fn part1(points: &mut Vec<Point>) -> Option<(String, usize)> {
             point.pos.0 += point.vel.0;
             grid.xmin = grid
                 .xmin
-                .min(Some(point.pos.0))
-                .or_else(|| Some(point.pos.0));
+                .min(Some(point.pos.0)).or(Some(point.pos.0));
             grid.xmax = grid.xmax.max(Some(point.pos.0));
 
             point.pos.1 += point.vel.1;
             grid.ymin = grid
                 .ymin
-                .min(Some(point.pos.1))
-                .or_else(|| Some(point.pos.1));
+                .min(Some(point.pos.1)).or(Some(point.pos.1));
             grid.ymax = grid.ymax.max(Some(point.pos.1));
         }
 

@@ -30,7 +30,7 @@ fn part2(inputfile: &str) -> io::Result<()> {
         }
         let line = line.trim().parse::<i32>().unwrap();
         num += line;
-        if !seen.insert(num.clone()) {
+        if !seen.insert(num) {
             println!("{}", num);
             return Ok(());
         }

@@ -274,7 +274,7 @@ impl<'a> Iterator for Iter<'a> {
     type Item = &'a PathNode;
     fn next(&mut self) -> Option<Self::Item> {
         self.next.take().map(|n| {
-            self.next = n.prev.as_ref().map(|p| &**p);
+            self.next = n.prev.as_deref();
             n
         })
     }

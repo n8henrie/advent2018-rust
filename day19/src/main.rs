@@ -294,7 +294,7 @@ seti 8 0 4
 seti 9 0 5";
 
         let mut reg: Register<usize> = [0; 6];
-        let result = part1(&input, &mut reg).unwrap();
+        let result = part1(input, &mut reg).unwrap();
         assert_eq!(result, 7);
     }
 }

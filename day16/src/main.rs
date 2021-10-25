@@ -179,7 +179,7 @@ fn part2(reg_commands: &[RegisterCommand], ops: &[Operation], program: &[[usize;
     let mut output = [0; 4];
     for p in program {
         let op = command_map[&p[0]];
-        output = op(&p, &output);
+        output = op(p, &output);
     }
     output[0]
 }

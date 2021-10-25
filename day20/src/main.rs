@@ -29,7 +29,7 @@ impl Area {
         let mut hm: HashMap<(isize, isize), (Gridpoint, u32)> = HashMap::new();
         let mut cursor: (isize, isize) = (0, 0);
         hm.insert(cursor, (Start, 0));
-        let paths = parse_regex(&input)
+        let paths = parse_regex(input)
             .iter()
             .flat_map(Node::follow)
             .collect::<Vec<_>>();
@@ -161,7 +161,7 @@ impl Node {
     }
     fn tails(node: &Rc<RefCell<Node>>) -> Vec<Rc<RefCell<Node>>> {
         if node.borrow().next.is_empty() {
-            vec![Rc::clone(&node)]
+            vec![Rc::clone(node)]
         } else {
             let mut tails = Vec::new();
             for n in node.borrow().next.iter() {
@@ -188,7 +188,7 @@ impl Node {
             }
             let mut paths: Vec<Vec<Direction>> = Vec::new();
             for n in node.borrow().next.iter() {
-                paths.extend(recurse(&n, history.clone()));
+                paths.extend(recurse(n, history.clone()));
             }
             paths.sort();
             paths.dedup();
@@ -249,7 +249,7 @@ fn parse_regex(input: &str) -> Vec<Rc<RefCell<Node>>> {
                 '(' if head.is_empty() => {
                     let mut opts = Vec::new();
                     let mut depth = 0;
-                    while let Some(c) = iter.next() {
+                    for c in &mut iter {
                         match c {
                             '|' if depth == 0 => {
                                 for node in parse(head.drain(..).collect::<String>()) {
@@ -334,8 +334,8 @@ fn main() -> Result<()> {
     let input = std::fs::read_to_string("day20/input.txt")?;
     let input = input.trim();
 
-    println!("part1: {}", part1(&input));
-    println!("part2: {}", part2(&input));
+    println!("part1: {}", part1(input));
+    println!("part2: {}", part2(input));
     Ok(())
 }
 

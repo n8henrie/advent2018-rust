@@ -232,6 +232,6 @@ mod tests {
         // In this example, after 20 generations, the pots shown as # contain plants, the furthest
         // left of which is pot -2, and the furthest right of which is pot 34. Adding up all the
         // numbers of plant-containing pots after the 20th generation produces 325.
-        assert_eq!(part1(&input, 20).unwrap(), 325)
+        assert_eq!(part1(input, 20).unwrap(), 325)
     }
 }

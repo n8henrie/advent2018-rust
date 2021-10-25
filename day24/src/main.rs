@@ -180,15 +180,13 @@ fn parse_system<'a>(lines: &mut impl Iterator<Item = &'a str>) -> Result<System>
     for (idx, line) in lines.enumerate() {
         let mut words = line.split_whitespace();
         let num_units: usize = words
-            .next()
-            .ok_or_else(|| "did not find num_units")?
+            .next().ok_or("did not find num_units")?
             .parse()?;
         ["units", "each", "with"].iter().for_each(|_| {
             words.next();
         });
         let hit_points: u32 = words
-            .next()
-            .ok_or_else(|| "did not find hit_points")?
+            .next().ok_or("did not find hit_points")?
             .parse()?;
         ["hit", "points"].iter().for_each(|_| {
             words.next();
@@ -226,15 +224,13 @@ fn parse_system<'a>(lines: &mut impl Iterator<Item = &'a str>) -> Result<System>
             .ok_or_else(|| format!("did not find attack_damage around {}: {}", idx, line))?
             .parse()?;
         let attack_type: Strategy = words
-            .next()
-            .ok_or_else(|| "did not find attack_type")?
+            .next().ok_or("did not find attack_type")?
             .parse()?;
         ["damage", "at", "initiative"].iter().for_each(|_| {
             words.next();
         });
         let initiative: u32 = words
-            .next()
-            .ok_or_else(|| "did not find initiative")?
+            .next().ok_or("did not find initiative")?
             .parse()?;
         system.push(Group {
             id: idx + 1,
@@ -327,25 +323,21 @@ fn fight(mut immune: System, mut infection: System) -> Result<(String, u32)> {
                     immune
                         .groups
                         .iter()
-                        .find(|g| g.id == idx)
-                        .ok_or_else(|| "No matching attacking immune group")?,
+                        .find(|g| g.id == idx).ok_or("No matching attacking immune group")?,
                     infection
                         .groups
                         .iter_mut()
-                        .find(|g| g.id == t_idx)
-                        .ok_or_else(|| "No matching target infection group")?,
+                        .find(|g| g.id == t_idx).ok_or("No matching target infection group")?,
                 ),
                 "Infection:" => (
                     infection
                         .groups
                         .iter()
-                        .find(|g| g.id == idx)
-                        .ok_or_else(|| "No matching attacking infection group")?,
+                        .find(|g| g.id == idx).ok_or("No matching attacking infection group")?,
                     immune
                         .groups
                         .iter_mut()
-                        .find(|g| g.id == t_idx)
-                        .ok_or_else(|| "No matching target immune group")?,
+                        .find(|g| g.id == t_idx).ok_or("No matching target immune group")?,
                 ),
                 _ => return Err(err!("Bad group name")),
             };

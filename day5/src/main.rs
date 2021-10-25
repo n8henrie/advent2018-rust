@@ -55,8 +55,8 @@ fn main() {
 
     let input = std::fs::read_to_string("day5/input.txt").expect("unable to read input file");
     let input = input.trim();
-    println!("part1: {}", part1(&input));
-    println!("part2: {}", part2(&input));
+    println!("part1: {}", part1(input));
+    println!("part2: {}", part2(input));
 }
 
 #[cfg(test)]

@@ -183,7 +183,7 @@ mod tests {
         ];
 
         for (input, answer) in pairs {
-            assert_eq!(part1(&input)?, *answer);
+            assert_eq!(part1(input)?, *answer);
         }
         Ok(())
     }

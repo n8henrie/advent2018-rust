@@ -156,8 +156,8 @@ fn find_most_asleep_minute(times: &[u32]) -> u8 {
 }
 
 fn part1(sleep_times: &HashMap<u32, Vec<u32>>) -> u32 {
-    let (id, times) = find_sleepiest(&sleep_times);
-    let minute = find_most_asleep_minute(&times);
+    let (id, times) = find_sleepiest(sleep_times);
+    let minute = find_most_asleep_minute(times);
     u32::from(minute) * id
 }
 

@@ -72,7 +72,7 @@ fn next_task(btm: &BTreeMap<char, TaskNode>) -> Option<(&char, &TaskNode)> {
 }
 
 fn part1(input: &str) -> String {
-    let btm = parse_input(&input);
+    let btm = parse_input(input);
     let mut output = String::new();
     while let Some((name, task)) = next_task(&btm) {
         task.borrow_mut().status = Status::Done;
@@ -86,7 +86,7 @@ fn name_to_delay(c: char) -> u8 {
 }
 
 fn part2(input: &str, num_workers: u32, delay: u32) -> u32 {
-    let btm = parse_input(&input);
+    let btm = parse_input(input);
     let mut workers = vec![Worker::Available; num_workers as usize];
     let mut second = 0;
     loop {

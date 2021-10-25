@@ -36,7 +36,7 @@ fn part1(input: &str) -> u32 {
 }
 
 fn root_sum(node: &Node) -> u32 {
-    if let 0 = node.children.iter().count() {
+    if let 0 = node.children.len() {
         node.metadata.iter().sum::<u32>()
     } else {
         node.metadata
@@ -76,12 +76,12 @@ mod tests {
     #[test]
     fn test_part1() {
         let test_input = "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2";
-        assert_eq!(part1(&test_input), 138);
+        assert_eq!(part1(test_input), 138);
     }
 
     #[test]
     fn test_part2() {
         let test_input = "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2";
-        assert_eq!(part2(&test_input), 66);
+        assert_eq!(part2(test_input), 66);
     }
 }
