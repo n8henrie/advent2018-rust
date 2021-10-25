@@ -34,7 +34,8 @@ impl Usizeable for usize {
 // where <T as std::convert::TryFrom<usize>>::Error: std::fmt::Debug,
 /// addi (add immediate) stores into register C the result of adding register A and value B.
 fn addi<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = register[arguments[0]] + arguments[1].try_into().unwrap();
+    register[arguments[2]] =
+        register[arguments[0]] + arguments[1].try_into().unwrap();
 }
 
 /// addr (add register) stores into register C the result of adding register A and register B.
@@ -49,7 +50,8 @@ fn mulr<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
 
 /// muli (multiply immediate) stores into register C the result of multiplying register A and value B.
 fn muli<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = register[arguments[0]] * arguments[1].try_into().unwrap();
+    register[arguments[2]] =
+        register[arguments[0]] * arguments[1].try_into().unwrap();
 }
 
 /// banr (bitwise AND register) stores into register C the result of the bitwise AND of register A and register B.
@@ -59,7 +61,8 @@ fn banr<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
 
 /// bani (bitwise AND immediate) stores into register C the result of the bitwise AND of register A and value B.
 fn bani<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = register[arguments[0]] & arguments[1].try_into().unwrap();
+    register[arguments[2]] =
+        register[arguments[0]] & arguments[1].try_into().unwrap();
 }
 
 /// borr (bitwise OR register) stores into register C the result of the bitwise OR of register A and register B.
@@ -69,7 +72,8 @@ fn borr<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
 
 /// bori (bitwise OR immediate) stores into register C the result of the bitwise OR of register A and value B.
 fn bori<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = register[arguments[0]] | arguments[1].try_into().unwrap();
+    register[arguments[2]] =
+        register[arguments[0]] | arguments[1].try_into().unwrap();
 }
 
 /// setr (set register) copies the contents of register A into register C. (Input B is ignored.)
@@ -84,27 +88,30 @@ fn seti<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
 
 /// gtir (greater-than immediate/register) sets register C to 1 if value A is greater than register B. Otherwise, register C is set to 0.
 fn gtir<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] =
-        if TryInto::<T>::try_into(arguments[0]).unwrap() > register[arguments[1]] {
-            1.try_into().unwrap()
-        } else {
-            0.try_into().unwrap()
-        };
+    register[arguments[2]] = if TryInto::<T>::try_into(arguments[0]).unwrap()
+        > register[arguments[1]]
+    {
+        1.try_into().unwrap()
+    } else {
+        0.try_into().unwrap()
+    };
 }
 
 /// gtri (greater-than register/immediate) sets register C to 1 if register A is greater than value B. Otherwise, register C is set to 0.
 fn gtri<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] =
-        if register[arguments[0]] > TryInto::<T>::try_into(arguments[1]).unwrap() {
-            1.try_into().unwrap()
-        } else {
-            0.try_into().unwrap()
-        };
+    register[arguments[2]] = if register[arguments[0]]
+        > TryInto::<T>::try_into(arguments[1]).unwrap()
+    {
+        1.try_into().unwrap()
+    } else {
+        0.try_into().unwrap()
+    };
 }
 
 /// gtrr (greater-than register/register) sets register C to 1 if register A is greater than register B. Otherwise, register C is set to 0.
 fn gtrr<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = if register[arguments[0]] > register[arguments[1]] {
+    register[arguments[2]] = if register[arguments[0]] > register[arguments[1]]
+    {
         1.try_into().unwrap()
     } else {
         0.try_into().unwrap()
@@ -113,29 +120,32 @@ fn gtrr<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
 
 /// eqir (equal immediate/register) sets register C to 1 if value A is equal to register B. Otherwise, register C is set to 0.
 fn eqir<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = if arguments[0] == register[arguments[1]].try_into().unwrap() {
-        1.try_into().unwrap()
-    } else {
-        0.try_into().unwrap()
-    };
+    register[arguments[2]] =
+        if arguments[0] == register[arguments[1]].try_into().unwrap() {
+            1.try_into().unwrap()
+        } else {
+            0.try_into().unwrap()
+        };
 }
 
 /// eqri (equal register/immediate) sets register C to 1 if register A is equal to value B. Otherwise, register C is set to 0.
 fn eqri<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = if register[arguments[0]].try_into().unwrap() == arguments[1] {
-        1.try_into().unwrap()
-    } else {
-        0.try_into().unwrap()
-    };
+    register[arguments[2]] =
+        if register[arguments[0]].try_into().unwrap() == arguments[1] {
+            1.try_into().unwrap()
+        } else {
+            0.try_into().unwrap()
+        };
 }
 
 /// eqrr (equal register/register) sets register C to 1 if register A is equal to register B. Otherwise, register C is set to 0.
 fn eqrr<T: Usizeable>(arguments: Arguments, register: &mut Register<T>) {
-    register[arguments[2]] = if register[arguments[0]] == register[arguments[1]] {
-        1.try_into().unwrap()
-    } else {
-        0.try_into().unwrap()
-    };
+    register[arguments[2]] =
+        if register[arguments[0]] == register[arguments[1]] {
+            1.try_into().unwrap()
+        } else {
+            0.try_into().unwrap()
+        };
 }
 
 struct Program<T> {
@@ -159,37 +169,71 @@ impl<T: Usizeable> FromStr for Program<T> {
             .last()
             .ok_or_else(|| Error::new(InvalidInput, "No ip found in header"))?
             .parse()?;
-        let commands: Vec<Command<T>> = lines
-            .map(|line| {
-                let mut words = line.split_whitespace();
-                let cmd = words.next().expect("No first word");
-                let mut args = words.map(|word| word.parse::<usize>().unwrap());
-                let args: [usize; 3] = [
-                    args.next().unwrap(),
-                    args.next().unwrap(),
-                    args.next().unwrap(),
-                ];
-                match cmd {
-                    "addi" => Box::new(move |reg: &mut Register<T>| addi(args, reg)) as Command<T>,
-                    "addr" => Box::new(move |reg: &mut Register<T>| addr(args, reg)) as Command<T>,
-                    "mulr" => Box::new(move |reg: &mut Register<T>| mulr(args, reg)) as Command<T>,
-                    "muli" => Box::new(move |reg: &mut Register<T>| muli(args, reg)) as Command<T>,
-                    "banr" => Box::new(move |reg: &mut Register<T>| banr(args, reg)) as Command<T>,
-                    "bani" => Box::new(move |reg: &mut Register<T>| bani(args, reg)) as Command<T>,
-                    "borr" => Box::new(move |reg: &mut Register<T>| borr(args, reg)) as Command<T>,
-                    "bori" => Box::new(move |reg: &mut Register<T>| bori(args, reg)) as Command<T>,
-                    "setr" => Box::new(move |reg: &mut Register<T>| setr(args, reg)) as Command<T>,
-                    "seti" => Box::new(move |reg: &mut Register<T>| seti(args, reg)) as Command<T>,
-                    "gtir" => Box::new(move |reg: &mut Register<T>| gtir(args, reg)) as Command<T>,
-                    "gtri" => Box::new(move |reg: &mut Register<T>| gtri(args, reg)) as Command<T>,
-                    "gtrr" => Box::new(move |reg: &mut Register<T>| gtrr(args, reg)) as Command<T>,
-                    "eqir" => Box::new(move |reg: &mut Register<T>| eqir(args, reg)) as Command<T>,
-                    "eqri" => Box::new(move |reg: &mut Register<T>| eqri(args, reg)) as Command<T>,
-                    "eqrr" => Box::new(move |reg: &mut Register<T>| eqrr(args, reg)) as Command<T>,
-                    _ => panic!("Unrecognized function name!"),
-                }
-            })
-            .collect();
+        let commands: Vec<Command<T>> =
+            lines
+                .map(|line| {
+                    let mut words = line.split_whitespace();
+                    let cmd = words.next().expect("No first word");
+                    let mut args =
+                        words.map(|word| word.parse::<usize>().unwrap());
+                    let args: [usize; 3] = [
+                        args.next().unwrap(),
+                        args.next().unwrap(),
+                        args.next().unwrap(),
+                    ];
+                    match cmd {
+                        "addi" => Box::new(move |reg: &mut Register<T>| {
+                            addi(args, reg)
+                        }) as Command<T>,
+                        "addr" => Box::new(move |reg: &mut Register<T>| {
+                            addr(args, reg)
+                        }) as Command<T>,
+                        "mulr" => Box::new(move |reg: &mut Register<T>| {
+                            mulr(args, reg)
+                        }) as Command<T>,
+                        "muli" => Box::new(move |reg: &mut Register<T>| {
+                            muli(args, reg)
+                        }) as Command<T>,
+                        "banr" => Box::new(move |reg: &mut Register<T>| {
+                            banr(args, reg)
+                        }) as Command<T>,
+                        "bani" => Box::new(move |reg: &mut Register<T>| {
+                            bani(args, reg)
+                        }) as Command<T>,
+                        "borr" => Box::new(move |reg: &mut Register<T>| {
+                            borr(args, reg)
+                        }) as Command<T>,
+                        "bori" => Box::new(move |reg: &mut Register<T>| {
+                            bori(args, reg)
+                        }) as Command<T>,
+                        "setr" => Box::new(move |reg: &mut Register<T>| {
+                            setr(args, reg)
+                        }) as Command<T>,
+                        "seti" => Box::new(move |reg: &mut Register<T>| {
+                            seti(args, reg)
+                        }) as Command<T>,
+                        "gtir" => Box::new(move |reg: &mut Register<T>| {
+                            gtir(args, reg)
+                        }) as Command<T>,
+                        "gtri" => Box::new(move |reg: &mut Register<T>| {
+                            gtri(args, reg)
+                        }) as Command<T>,
+                        "gtrr" => Box::new(move |reg: &mut Register<T>| {
+                            gtrr(args, reg)
+                        }) as Command<T>,
+                        "eqir" => Box::new(move |reg: &mut Register<T>| {
+                            eqir(args, reg)
+                        }) as Command<T>,
+                        "eqri" => Box::new(move |reg: &mut Register<T>| {
+                            eqri(args, reg)
+                        }) as Command<T>,
+                        "eqrr" => Box::new(move |reg: &mut Register<T>| {
+                            eqrr(args, reg)
+                        }) as Command<T>,
+                        _ => panic!("Unrecognized function name!"),
+                    }
+                })
+                .collect();
         Ok(Self { ip, commands })
     }
 }
@@ -237,7 +281,11 @@ fn part2(input: &str, register: &mut [usize; 6]) -> Result<usize> {
                 ),
                 register[4],
             ) {
-                ((Some(div), Some(0)), sub) if div <= sub && div > register[2] => div,
+                ((Some(div), Some(0)), sub)
+                    if div <= sub && div > register[2] =>
+                {
+                    div
+                }
                 ((_, _), sub) if sub > register[2] => sub,
                 _ => register[2] + 1,
             };
@@ -251,7 +299,7 @@ fn part2(input: &str, register: &mut [usize; 6]) -> Result<usize> {
         func(register);
         register[program.ip] += 1;
     }
-    Ok(register[0].try_into().unwrap())
+    Ok(register[0])
 }
 
 fn main() -> Result<()> {

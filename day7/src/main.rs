@@ -43,7 +43,8 @@ fn parse_input(input: &str) -> BTreeMap<char, TaskNode> {
     for line in input.lines() {
         let mut words = line.split_whitespace();
         if let (Some(depends), Some(name)) = (words.nth(1), words.nth(5)) {
-            let depends = depends.parse::<char>().expect("unable to parse as char");
+            let depends =
+                depends.parse::<char>().expect("unable to parse as char");
             let depends = Rc::clone(
                 tasks
                     .entry(depends)
@@ -51,7 +52,8 @@ fn parse_input(input: &str) -> BTreeMap<char, TaskNode> {
             );
 
             let name = name.parse::<char>().expect("unable to parse as char");
-            let task = tasks.entry(name).or_insert_with(|| Task::new_node(name));
+            let task =
+                tasks.entry(name).or_insert_with(|| Task::new_node(name));
             task.borrow_mut().depends_on.push(depends);
         }
     }
@@ -61,13 +63,10 @@ fn parse_input(input: &str) -> BTreeMap<char, TaskNode> {
 fn next_task(btm: &BTreeMap<char, TaskNode>) -> Option<(&char, &TaskNode)> {
     btm.iter().find(|(_k, v)| {
         let v = v.borrow();
-        (match v.status {
-            Status::Pending => true,
-            _ => false,
-        }) && (v.depends_on.iter().all(|t| match t.borrow().status {
-            Status::Done => true,
-            _ => false,
-        }))
+        matches!(v.status, Status::Pending)
+            && v.depends_on
+                .iter()
+                .all(|t| matches!(t.borrow().status, Status::Done))
     })
 }
 
@@ -106,15 +105,13 @@ fn part2(input: &str, num_workers: u32, delay: u32) -> u32 {
                 if let Some((name, task)) = next_task(&btm) {
                     task.borrow_mut().status = Status::InProcess;
                     let delay = delay + u32::from(name_to_delay(*name));
-                    *worker = Worker::WorkingOn((task.clone(), second + delay));
+                    *worker =
+                        Worker::WorkingOn((task.clone(), second + delay));
                 }
             }
         }
 
-        if workers.iter().all(|w| match w {
-            Worker::Available => true,
-            _ => false,
-        }) {
+        if workers.iter().all(|w| matches!(w, Worker::Available)) {
             return second;
         } else {
             second += 1;
@@ -123,7 +120,6 @@ fn part2(input: &str, num_workers: u32, delay: u32) -> u32 {
 }
 
 fn main() -> std::io::Result<()> {
-
     let input = std::fs::read_to_string("day7/input.txt")?;
     println!("Part 1: {}", part1(&input));
     println!("Part 2: {}", part2(&input, 5, 60));

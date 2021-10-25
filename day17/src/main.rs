@@ -41,7 +41,8 @@ impl From<Vec<ClayBuilder>> for Board {
         for cb in cbs {
             for x in &cb.xs {
                 for y in &cb.ys {
-                    *spaces.get_mut(x + (max_x + 1) * y).unwrap() = BoardSpace::Clay;
+                    *spaces.get_mut(x + (max_x + 1) * y).unwrap() =
+                        BoardSpace::Clay;
                 }
             }
         }
@@ -104,7 +105,8 @@ fn propagate(board: Arc<Mutex<Board>>, pos: (usize, usize)) {
 
     {
         // Assume we are here because we are falling
-        *board.lock().unwrap().get_mut(pos).unwrap() = BoardSpace::FallingWater;
+        *board.lock().unwrap().get_mut(pos).unwrap() =
+            BoardSpace::FallingWater;
     }
 
     // If you can go down, go down as far as you can (should only matter on startup)
@@ -130,7 +132,8 @@ fn propagate(board: Arc<Mutex<Board>>, pos: (usize, usize)) {
             };
 
             match b.lock().unwrap().get_mut((pos.0 - 1, pos.1)).unwrap() {
-                space @ BoardSpace::Space | space @ BoardSpace::FallingWater => {
+                space @ BoardSpace::Space
+                | space @ BoardSpace::FallingWater => {
                     *space = BoardSpace::FallingWater;
                     pos.0 -= 1;
                 }
@@ -153,7 +156,8 @@ fn propagate(board: Arc<Mutex<Board>>, pos: (usize, usize)) {
 
             // If you couldn't go down, then go right
             match b.lock().unwrap().get_mut((pos.0 + 1, pos.1)).unwrap() {
-                space @ BoardSpace::Space | space @ BoardSpace::FallingWater => {
+                space @ BoardSpace::Space
+                | space @ BoardSpace::FallingWater => {
                     *space = BoardSpace::FallingWater;
                     pos.0 += 1;
                 }
@@ -170,13 +174,17 @@ fn propagate(board: Arc<Mutex<Board>>, pos: (usize, usize)) {
 
             {
                 let mut guard = board.lock().unwrap();
-                while let Some(space @ BoardSpace::FallingWater) = guard.get_mut(pos) {
+                while let Some(space @ BoardSpace::FallingWater) =
+                    guard.get_mut(pos)
+                {
                     *space = BoardSpace::SittingWater;
                     pos.0 -= 1;
                 }
                 pos = start_pos;
                 pos.0 += 1;
-                while let Some(space @ BoardSpace::FallingWater) = guard.get_mut(pos) {
+                while let Some(space @ BoardSpace::FallingWater) =
+                    guard.get_mut(pos)
+                {
                     *space = BoardSpace::SittingWater;
                     pos.0 += 1;
                 }
@@ -188,8 +196,8 @@ fn propagate(board: Arc<Mutex<Board>>, pos: (usize, usize)) {
         (Ok(StopReason::TooFar), Ok(StopReason::TooFar)) => {}
 
         (l, r) => {
-            for dir in &[l, r] {
-                if let Ok(StopReason::StartFalling(pos)) = dir {
+            for dir in [l, r].iter().copied().flatten() {
+                if let StopReason::StartFalling(pos) = dir {
                     propagate(Arc::clone(&board), *pos);
                 }
             }
@@ -209,7 +217,10 @@ fn part1(input: &str) -> Result<(usize, usize), Box<dyn std::error::Error>> {
         .unwrap()
         .spaces
         .iter()
-        .filter(|&space| *space == BoardSpace::FallingWater || *space == BoardSpace::SittingWater)
+        .filter(|&space| {
+            *space == BoardSpace::FallingWater
+                || *space == BoardSpace::SittingWater
+        })
         .count();
     let standing_water_count = b
         .lock()
@@ -232,14 +243,19 @@ impl FromStr for Board {
             };
             for axis in line.split(", ") {
                 let mut parts = axis.split('=');
-                if let (Some(axis), Some(coords)) = (parts.next(), parts.next()) {
+                if let (Some(axis), Some(coords)) =
+                    (parts.next(), parts.next())
+                {
                     let mut coords = coords.split("..");
                     let coords = match (coords.next(), coords.next()) {
                         (Some(start), Some(end)) => {
-                            let (start, end): (usize, usize) = (start.parse()?, end.parse()?);
+                            let (start, end): (usize, usize) =
+                                (start.parse()?, end.parse()?);
                             (start..=end).collect::<Vec<_>>()
                         }
-                        (Some(start), None) => vec![start.parse::<usize>().unwrap()],
+                        (Some(start), None) => {
+                            vec![start.parse::<usize>().unwrap()]
+                        }
                         _ => {
                             return Err(Box::new(std::io::Error::new(
                                 std::io::ErrorKind::InvalidInput,
@@ -266,7 +282,6 @@ impl FromStr for Board {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     let input = std::fs::read_to_string("day17/input.txt")?;
     let output = part1(&input)?;
     println!("part1: {}", output.0);
@@ -291,13 +306,15 @@ x=5..8, y=3";
                 min_y: 2,
                 max_y: 7,
                 spaces: vec![
-                    Space, Space, Space, Space, Space, Space, Space, Space, Space, Space, Space,
-                    Space, Space, Space, Space, Space, Space, Space, Space, Space, Space, Space,
-                    Clay, Space, Space, Space, Space, Space, Space, Space, Space, Clay, Clay, Clay,
-                    Clay, Clay, Space, Space, Space, Space, Clay, Space, Space, Space, Space,
-                    Space, Space, Space, Space, Clay, Space, Space, Space, Space, Space, Space,
-                    Space, Space, Clay, Space, Space, Space, Space, Space, Space, Space, Space,
-                    Clay, Space, Space, Space, Space,
+                    Space, Space, Space, Space, Space, Space, Space, Space,
+                    Space, Space, Space, Space, Space, Space, Space, Space,
+                    Space, Space, Space, Space, Space, Space, Clay, Space,
+                    Space, Space, Space, Space, Space, Space, Space, Clay,
+                    Clay, Clay, Clay, Clay, Space, Space, Space, Space, Clay,
+                    Space, Space, Space, Space, Space, Space, Space, Space,
+                    Clay, Space, Space, Space, Space, Space, Space, Space,
+                    Space, Clay, Space, Space, Space, Space, Space, Space,
+                    Space, Space, Clay, Space, Space, Space, Space,
                 ]
             }
         )

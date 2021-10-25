@@ -2,7 +2,7 @@
 name = "day6"
 version = "0.1.0"
 authors = ["Nathan Henrie <nate@n8henrie.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 nom = "^4.2"

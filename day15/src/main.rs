@@ -37,7 +37,7 @@ struct Board {
     dimensions: (usize, usize),
 }
 
-#[derive(PartialEq, Eq, PartialOrd)]
+#[derive(PartialEq, Eq)]
 struct PathNode {
     coords: (usize, usize),
     prev: Option<Rc<PathNode>>,
@@ -75,7 +75,11 @@ impl Board {
     fn game_is_over(&self) -> bool {
         ![Species::Goblin, Species::Elf].iter().all(|species| {
             self.pieces.iter().flatten().any(|piece| match piece {
-                BoardPiece::Combatant(Combatant { species: s, .. }) if s == species => true,
+                BoardPiece::Combatant(Combatant { species: s, .. })
+                    if s == species =>
+                {
+                    true
+                }
                 _ => false,
             })
         })
@@ -85,7 +89,9 @@ impl Board {
     fn jiggle(&self, coords: (usize, usize)) -> Vec<(usize, usize)> {
         let mut adjacent = Vec::new();
         for adj in [(0, 1), (1, 0)].iter() {
-            if let (Some(x), Some(y)) = (coords.0.checked_sub(adj.0), coords.1.checked_sub(adj.1)) {
+            if let (Some(x), Some(y)) =
+                (coords.0.checked_sub(adj.0), coords.1.checked_sub(adj.1))
+            {
                 adjacent.push((x, y));
             }
         }
@@ -111,13 +117,17 @@ impl Board {
             .jiggle(from)
             .into_iter()
             .filter_map(|coord| match self.get(coord) {
-                Some(BoardPiece::Combatant(c)) if c.species == *enemy_species => {
+                Some(BoardPiece::Combatant(c))
+                    if c.species == *enemy_species =>
+                {
                     Some((c.hit_points, coord))
                 }
                 _ => None,
             })
             .collect();
-        if let Some(min_hitpoints) = adjacent_enemies.iter().map(|(hp, _)| hp).min() {
+        if let Some(min_hitpoints) =
+            adjacent_enemies.iter().map(|(hp, _)| hp).min()
+        {
             let mut low_points = adjacent_enemies
                 .iter()
                 .filter_map(|(hp, coords)| {
@@ -146,7 +156,11 @@ impl Board {
 
     /// Attacks the piece at `enemy_coords` with the hitpower from the piece at `coords`. Returns
     /// `true` if the enemy piece was killed.
-    fn attack(&mut self, coords: (usize, usize), enemy_coords: (usize, usize)) {
+    fn attack(
+        &mut self,
+        coords: (usize, usize),
+        enemy_coords: (usize, usize),
+    ) {
         let attack_power = match self.get(coords).unwrap() {
             BoardPiece::Combatant(Combatant {
                 attack_power: p, ..
@@ -194,9 +208,10 @@ impl Board {
                             continue;
                         };
                         match self.get(pos) {
-                            Some(BoardPiece::Combatant(Combatant { species: s, .. }))
-                                if s == enemy_species =>
-                            {
+                            Some(BoardPiece::Combatant(Combatant {
+                                species: s,
+                                ..
+                            })) if s == enemy_species => {
                                 should_end = true;
                                 paths.push_back(Rc::new(PathNode {
                                     coords: pos,
@@ -222,15 +237,13 @@ impl Board {
         // Only keep paths whose first element (the last added) is an enemy
         let mut paths: Vec<_> = paths
             .into_iter()
-            .filter(|p| match self.get(p.coords) {
-                Some(BoardPiece::Combatant(Combatant { species: s, .. })) if s == enemy_species => {
-                    true
-                }
-                _ => false,
-            })
+            .filter(|p| matches!(self.get(p.coords), Some(BoardPiece::Combatant(Combatant {
+                    species: s, ..
+                })) if s == enemy_species))
             .collect();
 
-        if let Some(min_length) = paths.iter().map(|p| p.iter().count()).min() {
+        if let Some(min_length) = paths.iter().map(|p| p.iter().count()).min()
+        {
             // Only consider paths with the minimum number of steps
             paths.retain(|p| p.iter().count() == min_length);
 
@@ -277,6 +290,12 @@ impl<'a> Iterator for Iter<'a> {
             self.next = n.prev.as_deref();
             n
         })
+    }
+}
+
+impl PartialOrd for PathNode {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
     }
 }
 
@@ -381,13 +400,13 @@ fn part1(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
             .iter()
             .enumerate()
             .flat_map(|(y, row)| {
-                row.iter()
-                    .enumerate()
-                    .filter_map(move |(x, piece)| match piece {
+                row.iter().enumerate().filter_map(
+                    move |(x, piece)| match piece {
                         BoardPiece::Wall => None,
                         BoardPiece::Space => None,
                         BoardPiece::Combatant(c) => Some(((x, y), c.clone())),
-                    })
+                    },
+                )
             })
             .collect::<VecDeque<_>>();
 
@@ -415,11 +434,14 @@ fn part1(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
                 Species::Elf => Species::Goblin,
                 Species::Goblin => Species::Elf,
             };
-            if let Some(enemy_coords) = board.find_adjacent_enemy(&enemy_species, coords) {
+            if let Some(enemy_coords) =
+                board.find_adjacent_enemy(&enemy_species, coords)
+            {
                 board.attack(coords, enemy_coords);
                 board.update_pieces(enemy_coords, &mut pieces_in_order);
 
-                if let Some(BoardPiece::Combatant(c)) = board.get(enemy_coords) {
+                if let Some(BoardPiece::Combatant(c)) = board.get(enemy_coords)
+                {
                     // If piece hasn't gone yet it should still be in pieces_in_order (not yet
                     // popped off), and it may get killed before its turn, so need to update value
                     // in pieces_in_order by cloning from value in board, which should be updated
@@ -431,12 +453,18 @@ fn part1(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
                     }
                 } else {
                     // Those coords on board not a combatant, likely died and now a space
-                    pieces_in_order.retain(|&(coords, _)| coords != enemy_coords);
+                    pieces_in_order
+                        .retain(|&(coords, _)| coords != enemy_coords);
                 }
-            } else if let Some(next_step) = board.find_enemy_path(&enemy_species, coords) {
-                *board.get_mut(next_step).unwrap() = BoardPiece::Combatant(piece);
+            } else if let Some(next_step) =
+                board.find_enemy_path(&enemy_species, coords)
+            {
+                *board.get_mut(next_step).unwrap() =
+                    BoardPiece::Combatant(piece);
                 *board.get_mut(coords).unwrap() = BoardPiece::Space;
-                if let Some(enemy_coords) = board.find_adjacent_enemy(&enemy_species, next_step) {
+                if let Some(enemy_coords) =
+                    board.find_adjacent_enemy(&enemy_species, next_step)
+                {
                     board.attack(next_step, enemy_coords);
                     board.update_pieces(enemy_coords, &mut pieces_in_order);
                 }
@@ -471,13 +499,15 @@ fn part2(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
                 .iter()
                 .enumerate()
                 .flat_map(|(y, row)| {
-                    row.iter()
-                        .enumerate()
-                        .filter_map(move |(x, piece)| match piece {
+                    row.iter().enumerate().filter_map(move |(x, piece)| {
+                        match piece {
                             BoardPiece::Wall => None,
                             BoardPiece::Space => None,
-                            BoardPiece::Combatant(c) => Some(((x, y), c.clone())),
-                        })
+                            BoardPiece::Combatant(c) => {
+                                Some(((x, y), c.clone()))
+                            }
+                        }
+                    })
                 })
                 .collect::<VecDeque<_>>();
             if pieces_in_order
@@ -513,11 +543,15 @@ fn part2(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
                     Species::Elf => Species::Goblin,
                     Species::Goblin => Species::Elf,
                 };
-                if let Some(enemy_coords) = board.find_adjacent_enemy(&enemy_species, coords) {
+                if let Some(enemy_coords) =
+                    board.find_adjacent_enemy(&enemy_species, coords)
+                {
                     board.attack(coords, enemy_coords);
                     board.update_pieces(enemy_coords, &mut pieces_in_order);
 
-                    if let Some(BoardPiece::Combatant(c)) = board.get(enemy_coords) {
+                    if let Some(BoardPiece::Combatant(c)) =
+                        board.get(enemy_coords)
+                    {
                         // If piece hasn't gone yet it should still be in pieces_in_order (not yet
                         // popped off), and it may get killed before its turn, so need to update value
                         // in pieces_in_order by cloning from value in board, which should be updated
@@ -529,15 +563,21 @@ fn part2(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
                         }
                     } else {
                         // Those coords on board not a combatant, likely died and now a space
-                        pieces_in_order.retain(|&(coords, _)| coords != enemy_coords);
+                        pieces_in_order
+                            .retain(|&(coords, _)| coords != enemy_coords);
                     }
-                } else if let Some(next_step) = board.find_enemy_path(&enemy_species, coords) {
-                    *board.get_mut(next_step).unwrap() = BoardPiece::Combatant(piece);
+                } else if let Some(next_step) =
+                    board.find_enemy_path(&enemy_species, coords)
+                {
+                    *board.get_mut(next_step).unwrap() =
+                        BoardPiece::Combatant(piece);
                     *board.get_mut(coords).unwrap() = BoardPiece::Space;
-                    if let Some(enemy_coords) = board.find_adjacent_enemy(&enemy_species, next_step)
+                    if let Some(enemy_coords) =
+                        board.find_adjacent_enemy(&enemy_species, next_step)
                     {
                         board.attack(next_step, enemy_coords);
-                        board.update_pieces(enemy_coords, &mut pieces_in_order);
+                        board
+                            .update_pieces(enemy_coords, &mut pieces_in_order);
                     }
                 }
             }
@@ -550,7 +590,6 @@ fn part2(input: &str) -> Result<u32, Box<dyn std::error::Error>> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     let input = std::fs::read_to_string("day15/input.txt")?;
     println!("Part 1: {:?}", part1(&input)?);
     println!("Part 2: {:?}", part2(&input)?);

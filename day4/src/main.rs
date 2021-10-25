@@ -54,71 +54,71 @@ struct DateTime {
 }
 
 named!(parse_date<CompleteStr, Date>,
-       do_parse!(
-            year: map_res!(take!(4), |CompleteStr(s)| u16::from_str_radix(s, 10)) >>
-            char!('-') >>
-            month: map_res!(take!(2), |CompleteStr(s)| u8::from_str_radix(s, 10)) >>
-            char!('-') >>
-            day: map_res!(take!(2), |CompleteStr(s)| u8::from_str_radix(s, 10)) >>
-            ( Date{year, month,day} )
-            )
-       );
+do_parse!(
+     year: map_res!(take!(4), |CompleteStr(s)| s.parse::<u16>()) >>
+     char!('-') >>
+     month: map_res!(take!(2), |CompleteStr(s)| s.parse::<u8>()) >>
+     char!('-') >>
+     day: map_res!(take!(2), |CompleteStr(s)| s.parse::<u8>()) >>
+     ( Date{year, month,day} )
+     )
+);
 
 named!(parse_time<CompleteStr, Time>,
-       do_parse!(
-            hour: map_res!(take!(2), |CompleteStr(s)| u8::from_str_radix(s, 10)) >>
-            char!(':') >>
-            minute: map_res!(take!(2), |CompleteStr(s)| u8::from_str_radix(s, 10)) >>
-            ( Time{hour, minute} )
-           )
-       );
+do_parse!(
+     hour: map_res!(take!(2), |CompleteStr(s)| s.parse::<u8>()) >>
+     char!(':') >>
+     minute: map_res!(take!(2), |CompleteStr(s)| s.parse::<u8>()) >>
+     ( Time{hour, minute} )
+    )
+);
 
 fn is_digit(c: char) -> bool {
     c.is_digit(10)
 }
 
 named!(begins_shift<CompleteStr, u32>,
-                         do_parse!(
-            tag!("Guard") >>
-            space >>
-            char!('#') >>
-            id: map_res!(take_while1!(is_digit), |CompleteStr(s)| u32::from_str_radix(s, 10)) >>
-            space >>
-            tag!("begins shift") >>
-            ( id )
-                             )
-                         );
+             do_parse!(
+tag!("Guard") >>
+space >>
+char!('#') >>
+id: map_res!(take_while1!(is_digit), |CompleteStr(s)| s.parse::<u32>()) >>
+space >>
+tag!("begins shift") >>
+( id )
+                 )
+             );
 
 named!(parse_datetime<CompleteStr, DateTime>,
-       do_parse!(
-            date: parse_date >>
-            space >>
-            time: parse_time >>
-            ( DateTime { date, time } )
-            )
-       );
+do_parse!(
+     date: parse_date >>
+     space >>
+     time: parse_time >>
+     ( DateTime { date, time } )
+     )
+);
 
 // [1518-06-12 23:57] Guard #2633 begins shift
 named!(parse_line<CompleteStr, GuardEvent>,
-       do_parse!(
-            dt: delimited!(char!('['), parse_datetime, char!(']')) >>
-            space >>
-            event: alt!(
-                map!(begins_shift, |id| GuardEvent::BeginsShift{dt: dt.clone(), id}) |
-                map!(tag!("falls asleep"), |_| GuardEvent::FallsAsleep{dt: dt.clone()}) |
-                map!(tag!("wakes up"), |_| GuardEvent::WakesUp{dt: dt.clone()})
-                     ) >>
+do_parse!(
+     dt: delimited!(char!('['), parse_datetime, char!(']')) >>
+     space >>
+     event: alt!(
+         map!(begins_shift, |id| GuardEvent::BeginsShift{dt: dt.clone(), id}) |
+         map!(tag!("falls asleep"), |_| GuardEvent::FallsAsleep{dt: dt.clone()}) |
+         map!(tag!("wakes up"), |_| GuardEvent::WakesUp{dt: dt.clone()})
+              ) >>
 
-            ( event )
-       )
-       );
+     ( event )
+)
+);
 
 named!(parse_lines<CompleteStr, Vec<GuardEvent>>,
-       separated_list_complete!(
-           char!('\n'),
-           parse_line
-           )
-       );
+separated_list_complete!(
+    char!('\n'),
+    parse_line
+    )
+);
 
 fn accumulate_events(events: &[GuardEvent]) -> HashMap<u32, Vec<u32>> {
     let mut sleep_times = HashMap::new();
@@ -128,7 +128,8 @@ fn accumulate_events(events: &[GuardEvent]) -> HashMap<u32, Vec<u32>> {
             [GuardEvent::BeginsShift { id, .. }, _] => {
                 latest_id = Some(*id);
             }
-            [GuardEvent::FallsAsleep { dt: sleeps }, GuardEvent::WakesUp { dt: wakes }] => {
+            [GuardEvent::FallsAsleep { dt: sleeps }, GuardEvent::WakesUp { dt: wakes }] =>
+            {
                 let times = sleep_times
                     .entry(latest_id.unwrap())
                     .or_insert_with(|| vec![0_u32; 60]);
@@ -176,7 +177,6 @@ fn part2(sleep_times: &HashMap<u32, Vec<u32>>) -> u32 {
 }
 
 fn main() -> io::Result<()> {
-
     let input = fs::read_to_string("day4/input.txt")?;
 
     let mut events = match parse_lines(CompleteStr(&input)) {
