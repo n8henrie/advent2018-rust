@@ -30,7 +30,7 @@ fn metadata_sum(node: &Node) -> u32 {
 fn part1(input: &str) -> u32 {
     let node = match parse_input(CompleteStr(input)) {
         Ok((_incomplete, node)) => node,
-        Err(e) => panic!(e.to_string()),
+        Err(e) => panic!("{}", e.to_string()),
     };
     metadata_sum(&node)
 }

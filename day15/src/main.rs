@@ -152,10 +152,10 @@ impl Board {
                 attack_power: p, ..
             }) => *p,
             _ => {
-                panic!(format!(
+                panic!(
                     "Tried to attack from a non-combatant board piece at {:?}",
                     coords
-                ));
+                );
             }
         };
         let other_piece = self.get_mut(enemy_coords).unwrap();

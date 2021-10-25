@@ -181,7 +181,7 @@ fn main() -> io::Result<()> {
 
     let mut events = match parse_lines(CompleteStr(&input)) {
         Ok((_remaining, value)) => value,
-        Err(e) => panic!(format!("Parse error: {}", e)),
+        Err(e) => panic!("Parse error: {}", e),
     };
     events.sort_unstable();
     let sleep_times = accumulate_events(&events);

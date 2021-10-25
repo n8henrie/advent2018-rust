@@ -1,5 +1,6 @@
 use nom::{
-    char, digit, do_parse, map_res, named, separated_list_complete, space, types::CompleteStr,
+    char, digit, do_parse, map_res, named, separated_list_complete, space,
+    types::CompleteStr,
 };
 use std::collections::HashMap;
 use std::fs;
@@ -49,9 +50,14 @@ impl Grid {
     fn add_rect(&mut self, rect: &Rect) {
         for x in rect.x..(rect.x + rect.w) {
             for y in rect.y..(rect.y + rect.h) {
-                let val = self.points.get_mut(&Point { x, y }).unwrap_or_else(|| {
-                    panic!("Grid does not contain point {}", format!("{},{}", x, y))
-                });
+                let val = self.points.get_mut(&Point { x, y }).unwrap_or_else(
+                    || {
+                        panic!(
+                            "Grid does not contain point {}",
+                            format!("{},{}", x, y)
+                        )
+                    },
+                );
                 *val += 1;
             }
         }
@@ -59,37 +65,39 @@ impl Grid {
 }
 
 named!(make_rect<CompleteStr, Rect>,
-       do_parse!(
-           char!('#') >>
-           id: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
-           space >>
-           char!('@') >>
-           space >>
-           x: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
-           char!(',') >>
-           y: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
-           char!(':') >>
-           space >>
-           w: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
-           char!('x') >>
-           h: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
-           ( Rect { id, x, y, w, h } )
-           )
+do_parse!(
+    char!('#') >>
+    id: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
+    space >>
+    char!('@') >>
+    space >>
+    x: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
+    char!(',') >>
+    y: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
+    char!(':') >>
+    space >>
+    w: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
+    char!('x') >>
+    h: map_res!(digit, |CompleteStr(s)| FromStr::from_str(s)) >>
+    ( Rect { id, x, y, w, h } )
+    )
 
-       );
+);
 
 named!(parse_to_rects<CompleteStr, Vec<Rect>>,
-       separated_list_complete!(
-           char!('\n'),
-           make_rect)
-       );
+separated_list_complete!(
+    char!('\n'),
+    make_rect)
+);
 
 fn parse(input: &str) -> Vec<Rect> {
     // Could just unwrap but probaby good to get used to handling specific error cases
     match parse_to_rects(CompleteStr(input)) {
         Ok((_remaining, value)) => value,
-        Err(nom::Err::Incomplete(needed)) => panic!(format!("needed: {:?}", needed)),
-        Err(nom::Err::Error(e)) | Err(nom::Err::Failure(e)) => panic!(format!("error: {:?}", e)),
+        Err(nom::Err::Incomplete(needed)) => panic!("needed: {:?}", needed),
+        Err(nom::Err::Error(e) | nom::Err::Failure(e)) => {
+            panic!("error: {:?}", e)
+        }
     }
 }
 
@@ -114,7 +122,6 @@ fn part2(input: &str) -> u32 {
 }
 
 fn main() -> io::Result<()> {
-
     let input = fs::read_to_string("day3/input.txt")?;
     println!("Number of overlapping points: {}", part1(&input));
     println!("ID of claim with all unique points: {}", part2(&input));

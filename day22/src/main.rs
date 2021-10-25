@@ -46,7 +46,11 @@ struct Cave {
 }
 
 impl Cave {
-    fn new(depth: usize, target: (usize, usize), expand: Option<(usize, usize)>) -> Self {
+    fn new(
+        depth: usize,
+        target: (usize, usize),
+        expand: Option<(usize, usize)>,
+    ) -> Self {
         let (width, height) = if let Some(e) = expand {
             (e.0 + target.0, e.1 + target.1)
         } else {
@@ -201,7 +205,8 @@ impl Climber {
     }
 
     fn climb(&mut self, cave: &Cave) -> Result<u32> {
-        type Gridmap = HashMap<(usize, usize, Tool), ((usize, usize, Tool), u32)>;
+        type Gridmap =
+            HashMap<(usize, usize, Tool), ((usize, usize, Tool), u32)>;
 
         #[allow(dead_code)]
         fn get_parents(
@@ -259,12 +264,13 @@ impl Climber {
                     continue;
                 };
                 let current_region = &cave.grid[pos.1][pos.0];
-                let next_region =
-                    if let Some(r) = cave.grid.get(newpos.1).and_then(|p| p.get(newpos.0)) {
-                        r
-                    } else {
-                        continue;
-                    };
+                let next_region = if let Some(r) =
+                    cave.grid.get(newpos.1).and_then(|p| p.get(newpos.0))
+                {
+                    r
+                } else {
+                    continue;
+                };
 
                 // Continue to next edge if the next tool combination would be invalid with either
                 // the next step or with the current one
@@ -285,11 +291,15 @@ impl Climber {
                     tool: *newtool,
                 };
 
-                let best_time = dist.entry((next.pos, next.tool)).or_insert(u32::MAX);
+                let best_time =
+                    dist.entry((next.pos, next.tool)).or_insert(u32::MAX);
                 if &next.time < best_time {
                     *best_time = next.time;
                     heap.push(next);
-                    parents.insert((newpos.0, newpos.1, *newtool), ((pos.0, pos.1, tool), time));
+                    parents.insert(
+                        (newpos.0, newpos.1, *newtool),
+                        ((pos.0, pos.1, tool), time),
+                    );
                 }
             }
         }
@@ -316,7 +326,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_parse() {
-        let input = std::fs::read_to_string("day22/input.txt").unwrap();
+        let input = std::fs::read_to_string("input.txt").unwrap();
         assert_eq!(parse_input(&input).unwrap(), (11394, (7, 701)))
     }
 
@@ -349,7 +359,9 @@ mod tests {
     fn test_region_type() {
         let (depth, target) = (510, (10, 10));
         let cave = Cave::new(depth, target, None);
-        let test = |idx| Cave::region_type(cave.erosion_level(cave.geologic_index(idx)));
+        let test = |idx| {
+            Cave::region_type(cave.erosion_level(cave.geologic_index(idx)))
+        };
         assert_eq!(test((1, 0)), Region::Wet);
         assert_eq!(test((0, 1)), Region::Rocky);
         assert_eq!(test((1, 1)), Region::Narrow);

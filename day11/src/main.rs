@@ -63,7 +63,9 @@ fn part2(lookup_table: &HashMap<(u32, u32), i32>) -> (u32, u32, u32, i32) {
 fn main() {
     let input = 7400;
     let lookup_table: HashMap<(u32, u32), i32> = (1..=300)
-        .flat_map(|x| (1..=300).map(move |y| ((x, y), power_level((x, y), input))))
+        .flat_map(|x| {
+            (1..=300).map(move |y| ((x, y), power_level((x, y), input)))
+        })
         .collect();
     let p1 = part1(&lookup_table);
     println!("part1: {},{}", p1.0, p1.1);
@@ -86,7 +88,9 @@ mod tests {
     fn test_part2() {
         let input = 42;
         let lookup_table: HashMap<(u32, u32), i32> = (1..=300)
-            .flat_map(|x| (1..=300).map(move |y| ((x, y), power_level((x, y), input))))
+            .flat_map(|x| {
+                (1..=300).map(move |y| ((x, y), power_level((x, y), input)))
+            })
             .collect();
         assert_eq!(part2(&lookup_table), (232, 251, 12, 119));
     }

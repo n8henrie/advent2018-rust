@@ -1,5 +1,4 @@
 use std::collections::BinaryHeap;
-use std::convert::TryInto;
 use std::error;
 use std::io::{self, Write};
 use std::str::FromStr;
@@ -106,8 +105,9 @@ impl<'a> Extrema<'a> {
         zmax: isize,
         bots: &'a [Bot],
     ) -> Result<Self> {
-        let volume: u128 =
-            (xmax - xmin + 1) as u128 * (ymax - ymin + 1) as u128 * (zmax - zmin + 1) as u128;
+        let volume: u128 = (xmax - xmin + 1) as u128
+            * (ymax - ymin + 1) as u128
+            * (zmax - zmin + 1) as u128;
 
         let mut pre_calc = Self {
             xmin,
@@ -117,7 +117,7 @@ impl<'a> Extrema<'a> {
             zmin,
             zmax,
             bots,
-            volume: volume.try_into()?,
+            volume,
             max_bots: None,
         };
         pre_calc.calculate_bots();
@@ -125,7 +125,8 @@ impl<'a> Extrema<'a> {
     }
 
     fn from_bots(bots: &'a [Bot]) -> Result<Self> {
-        let (mut xmin, mut ymin, mut xmax, mut ymax, mut zmin, mut zmax) = (0, 0, 0, 0, 0, 0);
+        let (mut xmin, mut ymin, mut xmax, mut ymax, mut zmin, mut zmax) =
+            (0, 0, 0, 0, 0, 0);
         for bot in bots.iter() {
             xmin = bot.pos.0.min(xmin);
             ymin = bot.pos.1.min(ymin);
@@ -247,16 +248,14 @@ fn part2(input: &str) -> Result<u32> {
 }
 
 fn distance_of_closest_point(points: &[Extrema]) -> Result<u32> {
-    Ok(points
+    points
         .iter()
         .map(|e| e.abs_distance(&(0, 0, 0)))
         .min()
-        .ok_or_else(|| err!("No minimum"))?
-        .try_into()?)
+        .ok_or_else(|| err!("No minimum"))
 }
 
 fn main() -> Result<()> {
-
     let input = std::fs::read_to_string("day23/input.txt")?;
     writeln!(io::stdout(), "part1: {}", part1(&input)?)?;
     writeln!(io::stdout(), "part2: {}", part2(&input)?)?;
@@ -287,14 +286,13 @@ pos=<16,12,12>, r=4
 pos=<14,14,14>, r=6
 pos=<50,50,50>, r=200
 pos=<10,10,10>, r=5";
-        let output = part2(&input);
+        let output = part2(input);
         assert_eq!(output.unwrap(), 36);
     }
 
     #[test]
     fn test_volume() {
-        let input = std::fs::read_to_string("day23/input.txt").unwrap();
-        let input = std::fs::read_to_string("day23/input.txt").unwrap();
+        let input = std::fs::read_to_string("input.txt").unwrap();
         let bots = input
             .lines()
             .map(|line| line.parse())
